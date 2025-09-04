@@ -132,13 +132,15 @@
                     </div>
                     <div class="bg-white p-8 rounded-xl border border-stone-200">
                         <h3 class="text-xl font-bold text-sky-800 mb-2">提案內容與效益</h3>
+                        <p class="text-stone-600 mb-4">為建立社區永續的維護機制，並避免未來因臨時鉅額分攤造成住戶衝擊，茲提出「重大修繕費」開徵方案：</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-700 mb-6">
-                            <li><b>開徵費用：</b>每月每坪收取 <span class="font-bold text-sky-700">10元</span> 重大修繕費。</li>
-                            <li><b>專款專用：</b>設立獨立基金專戶，帳目透明。</li>
-                            <li><b>嚴格動支：</b>動用需經區權會決議，確保資金安全。</li>
-                            <li><b>效益：</b>預計每年可穩定儲備約 <span class="font-bold text-sky-700">74.7萬元</span>，有效保值房產。</li>
+                            <li><b>開徵項目與標準：</b>於現行每月管理費之外，增收「重大修繕費」。收費標準依各戶產權登記之主建物及附屬建物面積計算，**每坪每月收取新台幣 10 元整**。</li>
+                            <li><b>實施日期：</b>自 **民國 115 年 01 月 01 日** 起開始收取。</li>
+                            <li><b>資金管理：</b>此筆費用將全數撥入新設立之「重大修繕基金」獨立專戶，與一般管理費帳戶完全分離，確保專款專用。</li>
+                            <li><b>嚴格動支：</b>所有動支申請案，一律須提報至區分所有權人會議，經由全體區權人依社區規約規定之決議門檻表決通過後，始得動支。</li>
+                            <li><b>用途：</b>本基金僅限用於對社區結構安全、公共設施設備有重大影響且非經常性之資本支出。</li>
                         </ul>
-                        <h3 class="text-xl font-bold text-sky-800 mb-4">我的每月負擔試算</h3>
+                         <h3 class="text-xl font-bold text-sky-800 mb-4">我的每月負擔試算</h3>
                         <p class="text-sm text-stone-600 mb-2">請輸入您權狀的主建物及附屬建物面積（坪），了解此提案對您的影響。這筆費用是對房屋資產的「價值投資」。</p>
                         <div class="flex items-center space-x-4">
                             <input type="number" id="areaInput" placeholder="例如：35" class="w-32 p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
@@ -759,15 +761,13 @@
                     analysisText.textContent = '';
                     analysisLoader.classList.remove('hidden');
 
-                    const proposalDetails = `社區車道出入口水溝蓋結構損壞。
-                    過去兩次局部修繕費用為：2.9萬元（111年）及7萬元（113年）。
-                    本次提案為「整體重作方案」，預估經費18萬至20萬元，需動用公共基金。
-                    效益：治本、一勞永逸，大幅延長結構使用年限。`;
-
                     const prompt = `請根據以下提案細節，用專業且具說服力的語言，條列式分析「整體重作方案」的優勢。重點強調其長期效益與經濟性，並與過去「治標」的局部修繕方式做對比，以說服住戶支持此提案。
-
                     提案細節：
-                    ${proposalDetails}`;
+                    * 結構性損壞：社區車道出入口的水溝蓋結構已出現明顯損壞，存在立即性的安全隱患。
+                    * 過去修繕費用：111年局部補強費用為2.9萬元，113年再次修繕花費約7萬元。
+                    * 治標不治本：過去連續兩次局部修繕，終究無法根除結構性問題，導致損壞再現。
+                    * 本次提案：採「整體重作方案」，預估經費18萬至20萬元，動用公共基金支應。
+                    * 核心效益：治本、一勞永逸，大幅延長結構使用年限，相較於短期內重複投入的臨時性修補，更具長遠經濟效益。`;
 
                     const payload = {
                         contents: [{ parts: [{ text: prompt }] }],
