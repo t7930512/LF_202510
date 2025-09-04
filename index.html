@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals -->
     <!-- Application Structure Plan: 本應用程式採用儀表板佈局，左側為固定導覽，右側為主內容區。此設計旨在打破原始文件的線性閱讀模式，讓使用者能依據關心的主題（財務、安全、秩序）快速跳轉至特定議案。透過將相關議案分組，幫助使用者建立議題間的關聯性。每個議案頁面都包含互動元素（如計算機、比較圖表、可點擊的圖解），目標是將抽象的文字轉化為個人化、易於理解的資訊，從而輔助住戶做出更明智的決策。此結構優先考慮使用者探索與理解的效率，而非單純複製報告章節。 -->
-    <!-- Visualization & Content Choices: 財務赤字 -> 目標:呈現財務惡化趨勢 -> 方法:長條圖(Chart.js) -> 互動:無 -> 理由:視覺化數據比文字更有說服力。重大修繕費 -> 目標:個人化成本 -> 方法:輸入框計算機 -> 互動:住戶輸入坪數即時計算 -> 理由:將議案與個人關聯，消除不確定性。頂樓防水 -> 目標:比較方案優劣 -> 方法:並列卡片+長條圖(Chart.js) -> 互動:點擊按鈕切換方案，圖表同步更新 -> 理由:讓複雜的選項對比一目了然。電動車安全 -> 目標:解釋多層次防護 -> 方法:HTML/CSS互動圖解 -> 互動:點擊防線展開詳細說明 -> 理由:將大段文字拆解為易吸收的區塊，增加參與感。 -->
+    <!-- Visualization & Content Choices: 財務赤字 -> 目標:呈現財務惡化趨勢 -> 方法:長條圖(Chart.js) -> 理由:視覺化數據比文字更有說服力。重大修繕費 -> 目標:個人化成本 -> 方法:輸入框計算機 -> 互動:住戶輸入坪數即時計算 -> 理由:將議案與個人關聯，消除不確定性。頂樓防水 -> 目標:比較方案優劣 -> 方法:並列卡片 -> 互動:點擊按鈕切換方案 -> 理由:讓複雜的選項對比一目了然。電動車安全 -> 目標:解釋多層次防護 -> 方法:HTML/CSS互動圖解 -> 互動:點擊防線展開詳細說明 -> 理由:將大段文字拆解為易吸收的區塊，增加參與感。 -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; }
@@ -43,7 +43,7 @@
 <body class="bg-stone-50 text-stone-800">
     <div class="flex flex-col md:flex-row min-h-screen">
         <nav id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r border-stone-200 p-4 md:p-6 md:sticky md:top-0 md:h-screen md:w-64 overflow-y-auto transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-20">
-            <h1 class="text-xl font-bold text-sky-800 mb-6">區權會議案導覽</h1>
+            <h1 class="text-xl font-bold text-sky-800 mb-6">114年度區權會議案導覽</h1>
             <div class="space-y-4">
                 <div>
                     <h2 class="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">總覽</h2>
@@ -86,7 +86,7 @@
             </header>
             <div id="dashboard" class="content-section p-4 md:p-10">
                 <h1 class="text-3xl font-bold text-sky-900 mb-2">114年區分所有權人會議 提案總覽</h1>
-                <p class="text-stone-600 mb-8">歡迎！本頁面旨在幫助您快速了解本次會議的關鍵議案。請點擊下方卡片或左側導覽以深入探索各項提案的詳細內容與互動分析。</p>
+                <p class="text-stone-600 mb-8">歡迎！本頁面旨在幫助您快速了解本次會議的關鍵議案。請點擊下方卡片或左側導覽以深入探索各項提案的詳細內容與互動分析。如需取得議案完整內容，請滑到最下面取得PDF。</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <a href="#proposal1" class="proposal-card bg-white p-6 rounded-xl border border-stone-200 block">
                         <h3 class="font-bold text-lg text-sky-800 mb-2">💰 議案一：重大修繕基金</h3>
@@ -118,7 +118,7 @@
                     </a>
                 </div>
                 <div class="mt-8 bg-white p-6 rounded-xl border border-stone-200">
-                    <h3 class="font-bold text-lg text-sky-800 mb-2">原始文件下載</h3>
+                    <h3 class="font-bold text-lg text-sky-800 mb-2">完整議案下載</h3>
                     <p class="text-stone-600 text-sm mb-4">您可以點擊以下連結或掃描QR Code，下載本次會議的完整提案PDF文件。</p>
                     <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
                         <a href="https://drive.google.com/file/d/12PMPXq58FDtNfe5m4XT2Y45kyhCMHEwe/view?usp=drive_link" target="_blank" class="text-sky-700 font-semibold hover:underline">點此下載完整提案文件</a>
@@ -133,24 +133,24 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                     <div>
-                        <h3 class="text-xl font-bold text-sky-800 mb-2">核心問題：財務警訊</h3>
-                        <p class="text-stone-600 mb-4">社區屋齡已屆10年，設施將進入高頻率汰換期。然而，社區財務已連續兩年出現赤字，現有管理費收入已不足以支應日常營運，更遑論為未來儲備資金。</p>
+                        <h3 class="text-xl font-bold text-sky-800 mb-2">說明：財務警訊與必要性</h3>
+                        <p class="text-stone-600 mb-4">本社區自民國104年取得使用執照至今，屋齡已屆10年，各項公共設施設備已逐漸進入高頻率維護及汰換週期。過往經驗顯示，重大修繕費用極為高昂。未來 10 至 15 年內，社區將陸續面臨外牆防水、結構檢修、消防系統、電力系統等更龐大的資本支出壓力，預估支出更高達新台幣 <span class="font-bold text-red-600">700萬元</span>。</p>
+                        <p class="text-stone-600 mb-4">依據社區近兩年財務報表(113、114年度)，社區營運已連續呈現赤字，現行管理費收入已不足以支應日常營運，無餘力為未來必然發生的重大修繕工程進行儲備。目前社區公共基金雖有約1,014萬元，但此為社區僅存的救命錢，若無新的財源挹注，面對未來動輒數百萬甚至上千萬的修繕費用，社區財務將陷入無以為繼的窘境。</p>
                         <div class="bg-white p-6 rounded-xl border border-stone-200">
-                            <h4 class="font-semibold text-center mb-2">社區年度財務狀況</h4>
+                            <h4 class="font-semibold text-center mb-2">社區年度收支趨勢</h4>
                             <div class="chart-container">
                                 <canvas id="deficitChart"></canvas>
                             </div>
                         </div>
                     </div>
                     <div class="bg-white p-8 rounded-xl border border-stone-200">
-                        <h3 class="text-xl font-bold text-sky-800 mb-2">提案內容與效益</h3>
+                        <h3 class="text-xl font-bold text-sky-800 mb-2">提案內容</h3>
                         <p class="text-stone-600 mb-4">為建立社區永續的維護機制，並避免未來因臨時鉅額分攤造成住戶衝擊，茲提出「重大修繕費」開徵方案：</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-700 mb-6">
                             <li><b>開徵項目與標準：</b>於現行每月管理費之外，增收「重大修繕費」。收費標準依各戶產權登記之主建物及附屬建物面積計算，**每坪每月收取新台幣 10 元整**。</li>
                             <li><b>實施日期：</b>自 **民國 115 年 01 月 01 日** 起開始收取。</li>
-                            <li><b>資金管理：</b>此筆費用將全數撥入新設立之「重大修繕基金」獨立專戶，與一般管理費帳戶完全分離，確保專款專用。</li>
-                            <li><b>嚴格動支：</b>所有動支申請案，一律須提報至區分所有權人會議，經由全體區權人依社區規約規定之決議門檻表決通過後，始得動支。</li>
-                            <li><b>用途：</b>本基金僅限用於對社區結構安全、公共設施設備有重大影響且非經常性之資本支出。</li>
+                            <li><b>資金管理：</b>此筆費用將全數撥入新設立之「重大修繕基金」獨立專戶，與一般管理費帳戶完全分離，確保專款專用。所有動支申請案，一律須提報至區分所有權人會議，經由全體區權人依社區規約規定之決議門檻表決通過後，始得動支。</li>
+                            <li><b>用途：</b>本基金僅限用於對社區結構安全、公共設施設備有重大影響且非經常性之資本支出，例如電梯系統更新、外牆防水、消防系統等。</li>
                         </ul>
                         <h3 class="text-xl font-bold text-sky-800 mb-4">我的每月負擔試算</h3>
                         <p class="text-sm text-stone-600 mb-2">請輸入您權狀的主建物及附屬建物面積（坪），了解此提案對您的影響。這筆費用是對房屋資產的「價值投資」。</p>
@@ -160,6 +160,15 @@
                             <span class="text-2xl font-bold text-sky-800" id="monthlyFee">NT$ 0 / 月</span>
                         </div>
                     </div>
+                </div>
+                <hr class="my-8 border-stone-200">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
+                    <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
+                    <ul class="list-disc list-inside space-y-2 text-stone-700">
+                        <li><b>資產保值與投資：</b>以權狀 35坪住戶為例，每月僅增加350元支出，是將未來一次性鉅額修繕壓力，轉化為可輕鬆負擔的小額儲蓄與對房產價值的投資。</li>
+                        <li><b>確保安全與品質：</b>建立穩定的基金，確保社區重大修繕工程得以適時進行，避免因資金不足而延宕，影響居住安全及品質。</li>
+                        <li><b>提升社區價值：</b>一個財務健全、維護良好的社區在房產市場中具有更高的保值與增值潛力。本案通過後，預計每年可為社區穩定儲備約74.7萬元的修繕能量，是社區管理成熟度的重要指標。</li>
+                    </ul>
                 </div>
                 <hr class="my-8 border-stone-200">
                 <div class="bg-white p-6 rounded-xl border border-stone-200">
@@ -174,15 +183,16 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl border border-stone-200">
-                        <h3 class="text-xl font-bold text-sky-800 mb-2">核心問題</h3>
+                        <h3 class="text-xl font-bold text-sky-800 mb-2">說明：核心問題與修訂原因</h3>
                         <ul class="list-disc list-inside space-y-2 text-stone-700">
-                            <li><b>納管急迫性：</b>根據交通部新法規，有牌照的電動代步工具應視為法定交通工具納入管理，以釐清權責。</li>
-                            <li><b>空間衝突：</b>汽車格超停機車與雜物，影響鄰近車位進出與車門開啟。</li>
-                            <li><b>車速威脅：</b>部分車輛在車道行駛速度過快，對行人及其他車輛構成潛在威脅。</li>
+                            <li><b>納管急迫性與法源依據：</b>根據交通部新法規，有牌照的電動代步工具（如電動機車、電動腳踏車）已屬法定交通工具，應一同納入本社區停車管理辦法，以釐清權責。</li>
+                            <li><b>停車空間使用衝突：</b>現行辦法允許汽車格超停機車，但若停放不當，會嚴重影響相鄰車位車門開啟，造成不便與財損風險。</li>
+                            <li><b>車速潛在威脅：</b>部分車輛在車道行駛速度過快，對行人及其他車輛構成潛在威脅。</li>
                         </ul>
                     </div>
                     <div class="bg-white p-6 rounded-xl border border-stone-200">
-                        <h3 class="text-xl font-bold text-sky-800 mb-2">提案修訂重點</h3>
+                        <h3 class="text-xl font-bold text-sky-800 mb-2">提案內容</h3>
+                        <p class="text-stone-600 mb-2">為使法規更臻明確，杜絕管理灰色地帶，茲提出《停車場管理辦法》條文修訂對照：</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-700">
                             <li><b>擴大定義：</b>將電動機車、電動腳踏車等電動代步工具一律視為機車納管，並規範超停數量。</li>
                             <li><b>睦鄰條款：</b>明確要求超停車輛應停放於不影響相鄰車位車門開啟的範圍內。</li>
@@ -193,7 +203,7 @@
                 </div>
 
                 <div class="mt-8 bg-white p-6 rounded-xl border border-stone-200">
-                    <h3 class="text-xl font-bold text-sky-800 mb-4">方案效益評估</h3>
+                    <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <h4 class="font-semibold text-stone-700">提升公平性與秩序</h4>
@@ -228,7 +238,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div class="bg-white p-8 rounded-xl border border-stone-200">
-                        <h3 class="text-xl font-bold text-sky-800 mb-4">提案核心：為何需要調整？</h3>
+                        <h3 class="text-xl font-bold text-sky-800 mb-4">說明：提案核心與必要性</h3>
                         <div class="space-y-4">
                             <div>
                                 <h4 class="font-semibold text-sky-700">營運成本顯著上漲</h4>
@@ -250,7 +260,7 @@
                         </div>
                     </div>
                     <div class="bg-white p-8 rounded-xl border border-stone-200">
-                        <h3 class="text-xl font-bold text-sky-800 mb-4">方案效益評估：我們將獲得什麼？</h3>
+                        <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估：我們將獲得什麼？</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <h4 class="font-semibold text-emerald-700">提升住戶公平性</h4>
@@ -340,7 +350,7 @@
                 <h2 class="text-3xl font-bold text-sky-900 mb-4">議案四：增設AED設備租賃案</h2>
                 <p class="text-stone-600 mb-8">生命無價，分秒必爭。在社區內不幸發生心臟驟停時，救護車抵達前的「黃金救援時間」至關重要。本案提議租賃AED設備，為所有住戶的生命安全多增添一重最關鍵的保障。</p>
                 <div class="bg-white p-8 rounded-xl border border-stone-200 mb-6">
-                    <h3 class="text-xl font-bold text-sky-800 mb-4">為什麼社區需要AED？</h3>
+                    <h3 class="text-xl font-bold text-sky-800 mb-4">說明：社區為何需要AED？</h3>
                     <p class="text-stone-700 mb-4">心臟驟停是社區中最常見的突發致命狀況之一，患者的黃金救援時間僅有短短的數分鐘。在救護車抵達前的每一秒都至關重要，若能及時使用AED，能大幅提升急救成功率。</p>
                     <ul class="list-disc list-inside space-y-2 text-stone-600">
                         <li><b>黃金救援時間：</b>每延遲1分鐘，存活率將下降7-10%。</li>
@@ -349,6 +359,7 @@
                     </ul>
                 </div>
                 <div class="bg-white p-8 rounded-xl border border-stone-200">
+                    <h3 class="text-xl font-bold text-sky-800 mb-4 text-center">提案內容與效益評估</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                         <div>
                             <div class="text-5xl mb-2">❤️</div>
@@ -382,7 +393,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div>
                         <div class="bg-white p-8 rounded-xl border border-stone-200 mb-6">
-                            <h3 class="text-xl font-bold text-sky-800 mb-4">治標的歷史：花費與問題</h3>
+                            <h3 class="text-xl font-bold text-sky-800 mb-4">說明：治標的歷史與問題</h3>
                             <p class="text-stone-700 mb-2">過去我們曾花費不少心力與金錢在局部修繕上，但事實證明這只是在不斷地「補破網」。</p>
                             <ul class="list-disc list-inside space-y-2 text-stone-600">
                                 <li><b>ABC棟：</b>累積支出約 <span class="font-bold text-red-600">147,850元</span>。</li>
@@ -391,7 +402,7 @@
                             <p class="mt-4 text-stone-700">這些花費證明，局部處理無法根除問題，水路只會轉移，導致新的漏水點不斷出現，是資源的重複浪費。</p>
                         </div>
                         <div class="bg-white p-8 rounded-xl border border-stone-200">
-                            <h3 class="text-xl font-bold text-sky-800 mb-4">治本的未來：兩種方案</h3>
+                            <h3 class="text-xl font-bold text-sky-800 mb-4">提案內容：兩種修繕方案</h3>
                             <p class="text-stone-700 mb-4">為了徹底解決問題，我們提供了兩種不同等級的全面修繕方案，均可從公共基金勻支。</p>
                             <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
                                 <button id="btnOptionA" class="px-6 py-2 font-semibold text-white bg-sky-700 rounded-lg shadow-md hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">A方案：打除重作 (治本)</button>
@@ -416,7 +427,7 @@
                 <p class="text-stone-600 mb-8">本社區車道出入口的水溝蓋結構已出現明顯損壞，此處為全體車輛進出的唯一通道，每日承受大量車輛碾壓，目前的結構狀況已不足以保障人車安全，隨時可能發生塌陷，造成車輛損壞甚至人員受傷的嚴重後果。</p>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div class="bg-white p-8 rounded-xl border border-stone-200">
-                        <h3 class="text-xl font-bold text-sky-800 mb-4">過去的修繕與衍生的問題</h3>
+                        <h3 class="text-xl font-bold text-sky-800 mb-4">說明：過去的修繕與衍生的問題</h3>
                         <p class="text-stone-700 mb-4">本案曾於民國111年及113年進行兩次局部修補，但都未能從根本上解決問題：</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-600 mb-4">
                             <li><b>111年：</b>局部補強方案，費用 **2.9萬元**。廠商當時已提醒治標不治本。</li>
@@ -425,19 +436,24 @@
                         <p class="text-stone-700 font-semibold">兩次加起來近10萬元的投入，都無法根除問題，證明了臨時性修補的無效與資源浪費。</p>
                     </div>
                     <div class="bg-white p-8 rounded-xl border border-stone-200">
-                        <h3 class="text-xl font-bold text-sky-800 mb-4">提案：整體重作，一勞永逸</h3>
+                        <h3 class="text-xl font-bold text-sky-800 mb-4">提案內容：整體重作，一勞永逸</h3>
                         <p class="text-stone-600 mb-4">考量社區的長遠安全與財務效益，我們提出「整體重作方案」，以更耐久、更全面的方式處理此安全問題。</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-700">
                             <li><b>工程範圍：</b>將現有長度10.5米的水泥溝蓋及下方結構物全部拆除，重新施作鋼筋綁紮、排水孔及水泥溝蓋更新工程。</li>
-                            <li><b>預估經費：</b>約新台幣 <span class="font-bold text-sky-700">18萬至20萬元</span>，動用公共基金支應。</li>
-                            <li><b>核心效益：</b>大幅延長結構使用年限，相較於短期內重複投入的臨時性修補，更具長遠經濟效益。</li>
+                            <li><b>預估經費：</b>約新台幣 <span class="font-bold text-sky-700">18萬至20萬元</span>。此金額已達規約規定之「重大修繕」，故需經區分所有權人會議決議，並動用公共基金支應。</li>
+                            <li><b>施工配套：</b>本方案最大的挑戰為施工期間車道需完全封閉。若本案通過，管理委員會將立即著手規劃詳細的「交通配套措施」。</li>
                         </ul>
                     </div>
                 </div>
                 <hr class="my-8 border-stone-200">
                 <div class="bg-white p-6 rounded-xl border border-stone-200">
+                    <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
+                    <p class="text-stone-700">採治本方案，大幅延長結構使用年限，可預期在未來數年內無須再為同一問題投入時間與金錢成本，相較於短期內必定要重複投入的臨時性修補，更具經濟效益。</p>
+                </div>
+                <hr class="my-8 border-stone-200">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 決議表決題目</h3>
-                    <p class="text-stone-700"><b>議案六：</b>是否同意授權管委會，在20萬元的預算上限內動用公共基金，採「整體重作方案」修繕車道水溝蓋？</p>
+                    <p class="text-stone-700"><b>議案六：</b>是否同意授權管委會在20萬元的預算上限內動用公共基金，採「整體重作方案」修繕車道水溝蓋？</p>
                 </div>
             </div>
 
@@ -520,6 +536,16 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <hr class="my-8 border-stone-200">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
+                    <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
+                    <ul class="list-disc list-inside space-y-2 text-stone-700">
+                        <li><b>提升社區安全：</b>將所有充電樁的安裝納入統一、專業的管理，杜絕私下拉線亂象。</li>
+                        <li><b>保障房產價值：</b>一個與時俱進、管理完善的「電動車友善社區」，在未來房市中更具競爭力與保值潛力。</li>
+                        <li><b>維持社區和諧：</b>建立權責分明的規範，能有效減少潛在爭議，促進鄰里和諧。</li>
+                        <li><b>提供合法路徑：</b>提供一套清晰、合法的申請流程，讓住戶能安心、安全地在家充電。</li>
+                    </ul>
                 </div>
                 <hr class="my-8 border-stone-200">
                 <div class="bg-white p-6 rounded-xl border border-stone-200">
