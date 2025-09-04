@@ -19,7 +19,7 @@
         .nav-link.active, .nav-link:hover { background-color: #f5f5f4; color: #0c4a6e; transform: translateX(2px); }
         .proposal-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
         .proposal-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
-        /* 新增的行動裝置導覽列樣式 */
+        /* 行動裝置導覽列樣式，修正滾動問題 */
         #sidebar.mobile-show {
             transform: translateX(0);
         }
@@ -139,17 +139,6 @@
                             <h4 class="font-semibold text-center mb-2">社區年度財務狀況</h4>
                             <div class="chart-container">
                                 <canvas id="deficitChart"></canvas>
-                            </div>
-                            <div class="mt-4 text-center">
-                                <button id="explainFinancesBtn" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition duration-200 ease-in-out">
-                                    ✨財務狀況解說
-                                </button>
-                                <div id="financesExplanation" class="mt-4 p-4 bg-stone-100 rounded-lg text-sm text-stone-700 hidden">
-                                    <p id="explanationText"></p>
-                                    <div id="explanationLoader" class="hidden flex justify-center items-center">
-                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-700"></div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -405,7 +394,7 @@
                             <h3 class="text-xl font-bold text-sky-800 mb-4">治本的未來：兩種方案</h3>
                             <p class="text-stone-700 mb-4">為了徹底解決問題，我們提供了兩種不同等級的全面修繕方案，均可從公共基金勻支。</p>
                             <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
-                                <button id="btnOptionA" class="px-6 py-2 font-semibold text-white bg-sky-700 rounded-lg shadow-md hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">A方案：打除重做 (治本)</button>
+                                <button id="btnOptionA" class="px-6 py-2 font-semibold text-white bg-sky-700 rounded-lg shadow-md hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">A方案：打除重作 (治本)</button>
                                 <button id="btnOptionB" class="px-6 py-2 font-semibold text-sky-800 bg-white border border-sky-700 rounded-lg hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">B方案：表面覆蓋 (經濟)</button>
                             </div>
                         </div>
@@ -443,17 +432,6 @@
                             <li><b>預估經費：</b>約新台幣 <span class="font-bold text-sky-700">18萬至20萬元</span>，動用公共基金支應。</li>
                             <li><b>核心效益：</b>大幅延長結構使用年限，相較於短期內重複投入的臨時性修補，更具長遠經濟效益。</li>
                         </ul>
-                    </div>
-                </div>
-                <div class="mt-8 text-center">
-                    <button id="analyzeProposalBtn" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition duration-200 ease-in-out">
-                        ✨專案優勢分析
-                    </button>
-                    <div id="proposalAnalysis" class="mt-4 p-4 bg-stone-100 rounded-lg text-sm text-stone-700 hidden">
-                        <p id="analysisText"></p>
-                        <div id="analysisLoader" class="hidden flex justify-center items-center">
-                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-700"></div>
-                        </div>
                     </div>
                 </div>
                 <hr class="my-8 border-stone-200">
@@ -665,55 +643,6 @@
                 });
             }
 
-            const explainFinancesBtn = document.getElementById('explainFinancesBtn');
-            const financesExplanation = document.getElementById('financesExplanation');
-            const explanationText = document.getElementById('explanationText');
-            const explanationLoader = document.getElementById('explanationLoader');
-
-            if (explainFinancesBtn) {
-                explainFinancesBtn.addEventListener('click', async () => {
-                    financesExplanation.classList.remove('hidden');
-                    explanationText.textContent = '';
-                    explanationLoader.classList.remove('hidden');
-                    explainFinancesBtn.disabled = true;
-
-                    const prompt = `根據以下社區年度財務數據，請用簡潔易懂的白話文，總結其近年的財務趨勢與主要問題。
-                    財務數據：
-                    110年度盈餘：638,257元
-                    111年度盈餘：495,544元
-                    112年度盈餘：152,902元
-                    113年度赤字：506,848元
-                    114年度赤字：223,218元`;
-
-                    const payload = {
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            temperature: 0.4,
-                        }
-                    };
-
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-                    try {
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        const result = await response.json();
-                        const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || '無法生成解說，請稍後再試。';
-                        explanationText.textContent = text;
-                    } catch (error) {
-                        explanationText.textContent = '生成解說時發生錯誤，請檢查網路連線或稍後再試。';
-                        console.error('Error generating explanation:', error);
-                    } finally {
-                        explanationLoader.classList.add('hidden');
-                        explainFinancesBtn.disabled = false;
-                    }
-                });
-            }
-
             const optionDetailsContainer = document.getElementById('optionDetails');
 
             const optionA = {
@@ -778,62 +707,12 @@
                 updateRooftopDisplay(optionA);
             }
 
-            const analyzeProposalBtn = document.getElementById('analyzeProposalBtn');
-            const proposalAnalysis = document.getElementById('proposalAnalysis');
-            const analysisText = document.getElementById('analysisText');
-            const analysisLoader = document.getElementById('analysisLoader');
-
-            if (analyzeProposalBtn) {
-                analyzeProposalBtn.addEventListener('click', async () => {
-                    proposalAnalysis.classList.remove('hidden');
-                    analysisText.textContent = '';
-                    analysisLoader.classList.remove('hidden');
-                    analyzeProposalBtn.disabled = true;
-
-                    const prompt = `請根據以下提案細節，用專業且具說服力的語言，條列式分析「整體重作方案」的優勢。重點強調其長期效益與經濟性，並與過去「治標」的局部修繕方式做對比，以說服住戶支持此提案。
-                    提案細節：
-                    * 結構性損壞：社區車道出入口的水溝蓋結構已出現明顯損壞，存在立即性的安全隱患。
-                    * 過去修繕費用：111年局部補強費用為2.9萬元，113年再次修繕花費約7萬元。
-                    * 治標不治本：過去連續兩次局部修繕，終究無法根除結構性問題，導致損壞再現。
-                    * 本次提案：採「整體重作方案」，預估經費18萬至20萬元，動用公共基金支應。
-                    * 核心效益：治本、一勞永逸，大幅延長結構使用年限，相較於短期內重複投入的臨時性修補，更具長遠經濟效益。`;
-
-                    const payload = {
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            temperature: 0.4,
-                        }
-                    };
-
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-                    try {
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        const result = await response.json();
-                        const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || '無法生成分析，請稍後再試。';
-                        analysisText.textContent = text;
-                    } catch (error) {
-                        analysisText.textContent = '生成分析時發生錯誤，請檢查網路連線或稍後再試。';
-                        console.error('Error generating analysis:', error);
-                    } finally {
-                        analysisLoader.classList.add('hidden');
-                        analyzeProposalBtn.disabled = false;
-                    }
-                });
-            }
-
             const defenseItems = document.querySelectorAll('.safety-defense-item');
             defenseItems.forEach(item => {
                 const button = item.querySelector('button');
                 const content = item.querySelector('.safety-defense-content');
                 const icon = button.querySelector('span:last-child');
                 button.addEventListener('click', () => {
-                    const isHidden = content.classList.contains('hidden');
                     // 關閉所有展開的項目
                     defenseItems.forEach(otherItem => {
                         const otherContent = otherItem.querySelector('.safety-defense-content');
