@@ -118,6 +118,19 @@
                     </a>
                 </div>
                 <div class="mt-8 bg-white p-6 rounded-xl border border-stone-200">
+                    <h3 class="font-bold text-lg text-sky-800 mb-2">本次會議程序</h3>
+                    <p class="text-stone-600 text-sm mb-4">請參閱以下本次會議的議程，讓您對流程一目了然。</p>
+                    <ol class="list-decimal list-inside space-y-2 text-stone-700">
+                        <li><b>報到與簽到</b>：確認出席人數及委託代理人數，計算總表決權比例，確保達到開會門檻。</li>
+                        <li><b>主席致詞與宣布開會</b>：由會議主席開場，說明會議目的與重要性，並宣布開會。</li>
+                        <li><b>會務報告</b>：年度重點工作報告、上次會議決議執行情況、財務收支與基金結餘等重要是項報告。</li>
+                        <li><b>報告議案及表決</b>：管理委員會針對本次各項提案進行詳細說明，並進行投票。</li>
+                        <li><b>臨時動議</b>：在議案結束後，由住戶提出未列入本次議程之臨時提案。</li>
+                        <li><b>推選各棟委員</b>：由出席住戶或經委託之代理人填寫選票，由選務人員當場開票、唱票並完成計票。</li>
+                        <li><b>散會</b>：會議正式結束。</li>
+                    </ol>
+                </div>
+                <div class="mt-8 bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="font-bold text-lg text-sky-800 mb-2">完整議案下載</h3>
                     <p class="text-stone-600 text-sm mb-4">您可以點擊以下連結或掃描QR Code，下載本次會議的完整提案PDF文件。</p>
                     <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
@@ -148,7 +161,7 @@
                         <p class="text-stone-600 mb-4">為建立社區永續的維護機制，並避免未來因臨時鉅額分攤造成住戶衝擊，茲提出「重大修繕費」開徵方案：</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-700 mb-6">
                             <li><b>開徵項目與標準：</b>於現行每月管理費之外，增收「重大修繕費」。收費標準依各戶產權登記之主建物及附屬建物面積計算，**每坪每月收取新台幣 10 元整**。</li>
-                            <li><b>實施日期：</b>自 **民國 115 年 01 月 01 日** 起開始收取。</li>
+                            <li><b>實施日期：</b>自民國 115 年 01 月 01 日起開始收取。</li>
                             <li><b>資金管理：</b>此筆費用將全數撥入新設立之「重大修繕基金」獨立專戶，與一般管理費帳戶完全分離，確保專款專用。所有動支申請案，一律須提報至區分所有權人會議，經由全體區權人依社區規約規定之決議門檻表決通過後，始得動支。</li>
                             <li><b>用途：</b>本基金僅限用於對社區結構安全、公共設施設備有重大影響且非經常性之資本支出，例如電梯系統更新、外牆防水、消防系統等。</li>
                         </ul>
@@ -157,7 +170,7 @@
                         <div class="flex items-center space-x-4">
                             <input type="number" id="areaInput" placeholder="例如：35" class="w-32 p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
                             <span class="text-stone-700">坪</span>
-                            <span class="text-2xl font-bold text-sky-800" id="monthlyFee">NT$ 0 / 月</span>
+                            <span class="text-2xl font-bold text-sky-800" id="monthlyFee">約 NT$ 0 / 月</span>
                         </div>
                     </div>
                 </div>
@@ -187,7 +200,7 @@
                         <ul class="list-disc list-inside space-y-2 text-stone-700">
                             <li><b>納管急迫性與法源依據：</b>根據交通部新法規，有牌照的電動代步工具（如電動機車、電動腳踏車）已屬法定交通工具，應一同納入本社區停車管理辦法，以釐清權責。</li>
                             <li><b>停車空間使用衝突：</b>現行辦法允許汽車格超停機車，但若停放不當，會嚴重影響相鄰車位車門開啟，造成不便與財損風險。</li>
-                            <li><b>車速潛在威脅：</b>部分車輛在車道行駛速度過快，對行人及其他車輛構成潛在威脅。</li>
+                            <li><b>車速潛在威脅：</b></b>部分車輛在車道行駛速度過快，對行人及其他車輛構成潛在威脅。</li>
                         </ul>
                     </div>
                     <div class="bg-white p-6 rounded-xl border border-stone-200">
@@ -637,7 +650,7 @@
                 areaInput.addEventListener('input', function() {
                     const area = parseFloat(this.value) || 0;
                     const fee = area * 10;
-                    monthlyFee.textContent = `NT$ ${fee.toLocaleString()} / 月`;
+                    monthlyFee.textContent = `約 NT$ ${fee.toLocaleString()} / 月`;
                 });
             }
 
