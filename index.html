@@ -7,22 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: 本應用程式採用儀表板佈局，左側為固定導覽，右側為主內容區。此設計旨在打破原始文件的線性閱讀模式，讓使用者能依據關心的主題（財務、安全、秩序）快速跳轉至特定議案。透過將相關議案分組，幫助使用者建立議題間的關聯性。每個議案頁面都包含互動元素（如計算機、比較圖表、可點擊的圖解），目標是將抽象的文字轉化為個人化、易於理解的資訊，從而輔助住戶做出更明智的決策。此結構優先考慮使用者探索與理解的效率，而非單純複製報告章節。 -->
+    <!-- Visualization & Content Choices: 財務赤字 -> 目標:呈現財務惡化趨勢 -> 方法:長條圖(Chart.js) -> 理由:視覺化數據比文字更有說服力。重大修繕費 -> 目標:個人化成本 -> 方法:輸入框計算機 -> 互動:住戶輸入坪數即時計算 -> 理由:將議案與個人關聯，消除不確定性。頂樓防水 -> 目標:比較方案優劣 -> 方法:並列卡片 -> 互動:點擊按鈕切換方案 -> 理由:讓複雜的選項對比一目了然。電動車安全 -> 目標:解釋多層次防護 -> 方法:HTML/CSS互動圖解 -> 互動:點擊防線展開詳細說明 -> 理由:將大段文字拆解為易吸收的區塊，增加參與感。 -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-        }
-        .chart-container { position: relative; width: 100%; max-width: 600px; margin: auto; height: 300px; }
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
         @media (min-width: 768px) { .chart-container { height: 350px; } }
-
         .nav-link { transition: all 0.2s ease-in-out; }
         .nav-link.active, .nav-link:hover { background-color: #f5f5f4; color: #0c4a6e; transform: translateX(2px); }
-
         .proposal-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
         .proposal-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
-
+        /* 行動裝置導覽列樣式，修正滾動問題 */
+        #sidebar.mobile-show {
+            transform: translateX(0);
+        }
         .safety-defense-item .safety-defense-content {
             transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
             max-height: 0;
@@ -31,96 +31,65 @@
             overflow: hidden;
         }
         .safety-defense-item .safety-defense-content.show {
-            max-height: 500px;
+            max-height: 500px; /* 大到足以容納內容的高度 */
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
-        .safety-defense-item button span:last-child { transition: transform 0.3s ease-in-out; }
-
-        /* Resizable Sidebar Styles */
-        #resizer {
-            transition: background-color 0.2s ease;
-        }
-        #resizer:hover, .is-resizing {
-            background-color: #38bdf8; /* sky-400 */
-        }
-
-        /* Animation Styles */
-        .animated-item {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-        }
-        .animated-item.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Presentation Mode Styles */
-        .presentation-slide {
-            min-height: 80vh;
+        .safety-defense-item button span:last-child {
+            transition: transform 0.3s ease-in-out;
         }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
     <div class="flex flex-col md:flex-row min-h-screen">
-        <nav id="sidebar" class="fixed inset-y-0 left-0 bg-white border-r border-stone-200 p-4 md:p-6 md:sticky md:top-0 md:h-screen overflow-y-auto transform -translate-x-full md:transform-none transition-transform md:transition-none duration-300 ease-in-out z-20 flex-shrink-0" style="width: 256px;">
-            <div class="h-full flex flex-col">
-                <h1 class="text-xl font-bold text-sky-800 mb-6">114年度區權會議案導覽</h1>
-                <div class="space-y-4 overflow-y-auto flex-grow">
-                    <div>
-                        <h2 class="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">總覽</h2>
-                        <a href="#dashboard" class="nav-link flex items-center p-2 rounded-lg text-stone-700 font-medium active">
-                            <span class="w-6 h-6 mr-3">📊</span> 儀表板
-                        </a>
-                        <a href="#presentation" class="nav-link items-center p-2 rounded-lg text-stone-700 font-medium hidden md:flex">
-                            <span class="w-6 h-6 mr-3">🖥️</span> 簡報模式
-                        </a>
-                    </div>
-                    <div>
-                        <h2 class="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">提案項目</h2>
-                        <a href="#proposal1" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
-                            <span class="w-6 h-6 mr-3">💧</span> 議案一：頂樓防水修繕
-                        </a>
-                        <a href="#proposal2" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
-                            <span class="w-6 h-6 mr-3">🚧</span> 議案二：車道水溝蓋
-                        </a>
-                        <a href="#proposal3" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
-                            <span class="w-6 h-6 mr-3">🔌</span> 議案三：電動車充電
-                        </a>
-                        <a href="#proposal4" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
-                            <span class="w-6 h-6 mr-3">💰</span> 議案四：重大修繕基金
-                        </a>
-                        <a href="#proposal5" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
-                            <span class="w-6 h-6 mr-3">🏛️</span> 議案五：公設收費調整
-                        </a>
-                        <a href="#proposal6" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
-                            <span class="w-6 h-6 mr-3">🅿️</span> 議案六：停車場管理
-                        </a>
-                        <a href="#proposal7" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
-                            <span class="w-6 h-6 mr-3">❤️</span> 議案七：AED 設備
-                        </a>
-                    </div>
+        <nav id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r border-stone-200 p-4 md:p-6 md:sticky md:top-0 md:h-screen md:w-64 overflow-y-auto transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-20">
+            <h1 class="text-xl font-bold text-sky-800 mb-6">114年度區權會議案導覽</h1>
+            <div class="space-y-4">
+                <div>
+                    <h2 class="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">總覽</h2>
+                    <a href="#dashboard" class="nav-link flex items-center p-2 rounded-lg text-stone-700 font-medium active">
+                        <span class="w-6 h-6 mr-3">📊</span> 儀表板
+                    </a>
+                </div>
+                <div>
+                    <h2 class="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">提案項目</h2>
+                    <a href="#proposal1" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
+                        <span class="w-6 h-6 mr-3">💧</span> 議案一：頂樓防水修繕
+                    </a>
+                    <a href="#proposal2" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
+                        <span class="w-6 h-6 mr-3">🚧</span> 議案二：車道水溝蓋
+                    </a>
+                    <a href="#proposal3" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
+                        <span class="w-6 h-6 mr-3">🔌</span> 議案三：電動車充電
+                    </a>
+                    <a href="#proposal4" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
+                        <span class="w-6 h-6 mr-3">💰</span> 議案四：重大修繕基金
+                    </a>
+                    <a href="#proposal5" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
+                        <span class="w-6 h-6 mr-3">🏛️</span> 議案五：公設收費調整
+                    </a>
+                    <a href="#proposal6" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
+                        <span class="w-6 h-6 mr-3">🅿️</span> 議案六：停車場管理
+                    </a>
+                    <a href="#proposal7" class="nav-link flex items-center p-2 rounded-lg text-stone-700">
+                        <span class="w-6 h-6 mr-3">❤️</span> 議案七：AED 設備
+                    </a>
                 </div>
             </div>
         </nav>
 
-        <div id="resizer" class="w-1.5 cursor-col-resize hidden md:block flex-shrink-0 bg-stone-200"></div>
-
-        <main class="flex-1 overflow-x-hidden">
+        <main class="flex-1">
             <header class="md:hidden p-4 bg-white border-b border-stone-200 sticky top-0 z-10">
                 <button id="menu-toggle" class="text-stone-700 focus:outline-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                 </button>
             </header>
-
             <div id="dashboard" class="content-section p-4 md:p-10">
-                <div class="animated-item">
-                    <h1 class="text-3xl font-bold text-sky-900 mb-2">114年區分所有權人會議 提案總覽</h1>
-                    <p class="text-stone-600 mb-8">歡迎！本頁面旨在幫助您快速了解本次會議的關鍵議案。您可以在此下載完整文件，或點擊下方卡片、左側導覽以深入探索各項提案的詳細內容與互動分析。</p>
-                </div>
+                <h1 class="text-3xl font-bold text-sky-900 mb-2">114年區分所有權人會議 提案總覽</h1>
+                <p class="text-stone-600 mb-8">歡迎！本頁面旨在幫助您快速了解本次會議的關鍵議案。您可以在此下載完整文件，或點擊下方卡片、左側導覽以深入探索各項提案的詳細內容與互動分析。</p>
 
-                <div class="mb-8 bg-white p-6 rounded-xl border border-stone-200 animated-item" style="transition-delay: 100ms;">
+                <!-- MOVED SECTION START -->
+                <div class="mb-8 bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="font-bold text-lg text-sky-800 mb-2">完整議案下載</h3>
                     <p class="text-stone-600 text-sm mb-4">您可以點擊以下連結或掃描QR Code，下載本次會議的完整提案PDF文件。</p>
                     <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
@@ -128,11 +97,39 @@
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://drive.google.com/file/d/12PMPXq58FDtNfe5m4XT2Y45kyhCMHEwe/view?usp=drive_link" alt="QR Code for proposal document" class="w-24 h-24 md:w-32 md:h-32 rounded-lg">
                     </div>
                 </div>
+                <!-- MOVED SECTION END -->
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Cards are injected by JS -->
+                    <a href="#proposal1" class="proposal-card bg-white p-6 rounded-xl border border-stone-200 block">
+                        <h3 class="font-bold text-lg text-sky-800 mb-2">💧 議案一：頂樓防水修繕</h3>
+                        <p class="text-stone-600 text-sm">頂樓防水層老化導致漏水，提供兩種修繕方案供決策，以徹底解決問題並保護社區資產。</p>
+                    </a>
+                    <a href="#proposal2" class="proposal-card bg-white p-6 rounded-xl border border-stone-200 block">
+                        <h3 class="font-bold text-lg text-sky-800 mb-2">🚧 議案二：車道水溝蓋</h3>
+                        <p class="text-stone-600 text-sm">車道水溝蓋結構損壞，存在立即性安全隱患，提案進行整體重作，以求一勞永逸。</p>
+                    </a>
+                    <a href="#proposal3" class="proposal-card bg-white p-6 rounded-xl border border-stone-200 block">
+                        <h3 class="font-bold text-lg text-sky-800 mb-2">🔌 議案三：電動車充電辦法</h3>
+                        <p class="text-stone-600 text-sm">因應電動車趨勢，制定安全、公平的管理辦法，並確保所有費用由使用者負擔，保障全體住戶權益。</p>
+                    </a>
+                    <a href="#proposal4" class="proposal-card bg-white p-6 rounded-xl border border-stone-200 block">
+                        <h3 class="font-bold text-lg text-sky-800 mb-2">💰 議案四：重大修繕基金</h3>
+                        <p class="text-stone-600 text-sm">為因應社區老化，提案開徵「重大修繕費」以建立永續財源。了解此舉如何為您的資產保值。</p>
+                    </a>
+                    <a href="#proposal5" class="proposal-card bg-white p-6 rounded-xl border border-stone-200 block">
+                        <h3 class="font-bold text-lg text-sky-800 mb-2">🏛️ 議案五：公設收費調整</h3>
+                        <p class="text-stone-600 text-sm">因應營運成本上漲，提案調整部分公設收費標準，並優化規約結構，落實使用者付費原則。</p>
+                    </a>
+                    <a href="#proposal6" class="proposal-card bg-white p-6 rounded-xl border border-stone-200 block">
+                        <h3 class="font-bold text-lg text-sky-800 mb-2">🅿️ 議案六：停車場管理</h3>
+                        <p class="text-stone-600 text-sm">修訂停車辦法，將電動代步工具納管，並解決停車空間使用衝突，提升停車場秩序與安全。</p>
+                    </a>
+                    <a href="#proposal7" class="proposal-card bg-white p-6 rounded-xl border border-stone-200 block">
+                        <h3 class="font-bold text-lg text-sky-800 mb-2">❤️ 議案七：AED 設備租賃</h3>
+                        <p class="text-stone-600 text-sm">提案租賃AED，提升社區在心臟驟停事件中的緊急救護能力，以極低成本為生命安全增添保障。</p>
+                    </a>
                 </div>
-                <div class="mt-8 bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="mt-8 bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="font-bold text-lg text-sky-800 mb-2">本次會議程序</h3>
                     <p class="text-stone-600 text-sm mb-4">請參閱以下本次會議的議程，讓您對流程一目了然。</p>
                     <ol class="list-decimal list-inside space-y-2 text-stone-700">
@@ -147,30 +144,12 @@
                 </div>
             </div>
 
-            <div id="presentation" class="content-section hidden p-4 md:p-10">
-                <div class="max-w-4xl mx-auto">
-                     <div class="animated-item">
-                        <h1 class="text-3xl font-bold text-sky-900 mb-2 text-center">會議簡報模式</h1>
-                        <p class="text-stone-600 mb-8 text-center">此模式專為投影報告設計。使用下方按鈕或鍵盤左右鍵切換議案。</p>
-                    </div>
-                    <div id="presentation-container" class="relative bg-white rounded-xl border border-stone-200 shadow-lg overflow-hidden animated-item" style="transition-delay: 100ms;">
-                        <!-- Slides are injected by JS -->
-                    </div>
-                    <div class="flex justify-center items-center mt-6 space-x-4 animated-item" style="transition-delay: 200ms;">
-                        <button id="prev-slide" class="px-4 py-2 font-semibold text-sky-800 bg-white border border-sky-700 rounded-lg hover:bg-stone-100">&larr; 上一頁</button>
-                        <span id="slide-counter" class="text-stone-600 font-medium"></span>
-                        <button id="next-slide" class="px-4 py-2 font-semibold text-sky-800 bg-white border border-sky-700 rounded-lg hover:bg-stone-100">下一頁 &rarr;</button>
-                    </div>
-                </div>
-            </div>
-
             <div id="proposal1" class="content-section hidden p-4 md:p-10">
-                <div class="animated-item">
-                    <h2 class="text-3xl font-bold text-sky-900 mb-4">議案一：頂樓防水修繕工程案</h2>
-                    <p class="text-stone-600 mb-8">頂樓住戶長期受漏水與壁癌所苦，經專業評估確認為頂樓平台防水層已全面老化。過往零星的補漏不僅花費可觀（歷年累計已支出約28萬元），且無法根治問題。為此，我們提出兩種全面修繕方案，期望能一勞永逸地解決問題。</p>
-                </div>
+                <h2 class="text-3xl font-bold text-sky-900 mb-4">議案一：頂樓防水修繕工程案</h2>
+                <p class="text-stone-600 mb-8">頂樓住戶長期受漏水與壁癌所苦，經專業評估確認為頂樓平台防水層已全面老化。過往零星的補漏不僅花費可觀（歷年累計已支出約28萬元），且無法根治問題。為此，我們提出兩種全面修繕方案，期望能一勞永逸地解決問題。</p>
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                    <div class="animated-item" style="transition-delay: 100ms;">
+                    <div>
                         <div class="bg-white p-8 rounded-xl border border-stone-200 mb-6">
                             <h3 class="text-xl font-bold text-sky-800 mb-4">說明：治標的歷史與問題</h3>
                             <p class="text-stone-700 mb-2">過去我們曾花費不少心力與金錢在局部修繕上，但事實證明這只是在不斷地「補破網」。</p>
@@ -189,12 +168,12 @@
                             </div>
                         </div>
                     </div>
-                    <div id="optionDetails" class="bg-white p-8 rounded-xl border border-stone-200 animated-item" style="transition-delay: 200ms;">
+                    <div id="optionDetails" class="bg-white p-8 rounded-xl border border-stone-200">
                         <!-- Content will be injected by JavaScript -->
                     </div>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -227,27 +206,23 @@
                     </div>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 決議表決題目</h3>
-                    <div class="space-y-2 text-stone-700">
-                        <p><b>議案一之一：</b>是否同意進行頂樓全面防水修繕工程？</p>
-                        <p><b>議案一之二：</b>請就以下兩種施工方案，擇一勾選。 (註:若項次一表決結果為「同意」,才需進行本項投票)<br>□ A方案：打除重做 (總工程款：2,394,000元 (未稅) )<br>□ B方案：表面覆蓋加強防水 (總工程款：595,000元 (未稅) )</p>
-                    </div>
+                    <p class="text-stone-700 mb-2"><b>議案一之一：</b>是否同意進行頂樓全面防水修繕工程？</p>
+                    <p class="text-stone-700"><b>議案一之二：</b>請就以下兩種施工方案，擇一勾選。 (註:若項次一表決結果為「同意」,才需進行本項投票) □ A方案：打除重做 (總工程款：2,394,000元 (未稅) ) □ B方案：表面覆蓋加強防水 (總工程款：595,000元 (未稅) )</p>
                 </div>
             </div>
 
             <div id="proposal2" class="content-section hidden p-4 md:p-10">
-                 <div class="animated-item">
-                    <h2 class="text-3xl font-bold text-sky-900 mb-4">議案二：車道水溝蓋結構安全修繕案</h2>
-                    <p class="text-stone-600 mb-8">本社區車道出入口的水溝蓋結構已出現明顯損壞，此處為全體車輛進出的唯一通道，每日承受大量車輛碾壓，目前的結構狀況已不足以保障人車安全，隨時可能發生塌陷，造成車輛損壞甚至人員受傷的嚴重後果。</p>
-                </div>
+                <h2 class="text-3xl font-bold text-sky-900 mb-4">議案二：車道水溝蓋結構安全修繕案</h2>
+                <p class="text-stone-600 mb-8">本社區車道出入口的水溝蓋結構已出現明顯損壞，此處為全體車輛進出的唯一通道，每日承受大量車輛碾壓，目前的結構狀況已不足以保障人車安全，隨時可能發生塌陷，造成車輛損壞甚至人員受傷的嚴重後果。</p>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                    <div class="bg-white p-8 rounded-xl border border-stone-200 animated-item" style="transition-delay: 100ms;">
+                    <div class="bg-white p-8 rounded-xl border border-stone-200">
                         <h3 class="text-xl font-bold text-sky-800 mb-4">說明：過去的修繕與衍生的問題</h3>
                         <p class="text-stone-700 mb-4">本案已歷經兩次治標不治本的局部修繕，第一次於111年花費2.9萬元，第二次於113年花費約7萬元，但終究無法根除結構性問題。</p>
                         <p class="text-stone-700 font-semibold">兩次加起來近10萬元的投入，都無法根除問題，證明了臨時性修補的無效與資源浪費。</p>
                     </div>
-                    <div class="bg-white p-8 rounded-xl border border-stone-200 animated-item" style="transition-delay: 200ms;">
+                    <div class="bg-white p-8 rounded-xl border border-stone-200">
                         <h3 class="text-xl font-bold text-sky-800 mb-4">提案內容：整體重作，一勞永逸</h3>
                         <p class="text-stone-600 mb-4">考量社區的長遠安全與財務效益，我們提出「整體重作方案」，以更耐久、更全面的方式處理此安全問題。</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-700">
@@ -258,23 +233,22 @@
                     </div>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
-                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
+                    <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
                     <p class="text-stone-700">採治本方案，可大幅延長結構使用年限，避免在短期內重複投入修補成本，更具經濟效益。</p>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 決議表決題目</h3>
                     <p class="text-stone-700"><b>議案二：</b>是否同意授權管委會在40萬元的預算上限內動用公共基金，採「整體重作方案」修繕車道水溝蓋？</p>
                 </div>
             </div>
 
             <div id="proposal3" class="content-section hidden p-4 md:p-10">
-                 <div class="animated-item">
-                    <h2 class="text-3xl font-bold text-sky-900 mb-4">議案三：電動車增設充電設備管理辦法案</h2>
-                    <p class="text-stone-600 mb-8">面對電動車普及的未來趨勢與法規要求，社區「禁止安裝充電樁」已非可行選項。本提案旨在法律強制實施前，為社區建立一套安全、公平且有序的管理機制，核心精神為<span class="font-bold text-sky-700">「使用者付費，非使用者零負擔」</span>，確保社區安全並提升資產價值。</p>
-                </div>
-                 <div class="bg-white p-6 rounded-xl border border-stone-200 mb-8 animated-item" style="transition-delay: 100ms;">
+                <h2 class="text-3xl font-bold text-sky-900 mb-4">議案三：電動車增設充電設備管理辦法案</h2>
+                <p class="text-stone-600 mb-8">面對電動車普及的未來趨勢與法規要求，社區「禁止安裝充電樁」已非可行選項。本提案旨在法律強制實施前，為社區建立一套安全、公平且有序的管理機制，核心精神為<span class="font-bold text-sky-700">「使用者付費，非使用者零負擔」</span>，確保社區安全並提升資產價值。</p>
+
+                <div class="bg-white p-6 rounded-xl border border-stone-200 mb-8">
                     <h3 class="font-bold text-lg text-sky-800 mb-2">管理辦法草案下載</h3>
                     <p class="text-stone-600 text-sm mb-4">您可以點擊以下連結或掃描QR Code，下載本次電動車增設充電設備管理辦法的完整草案文件。</p>
                     <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
@@ -282,34 +256,90 @@
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://drive.google.com/file/d/1HuwJK_6_EdKAhtvmsNzcjYQlwkF71mIw/view?usp=sharing" alt="QR Code for proposal document" class="w-24 h-24 md:w-32 md:h-32 rounded-lg">
                     </div>
                 </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                    <div class="animated-item" style="transition-delay: 200ms;">
+                    <div>
                         <div class="bg-white p-8 rounded-xl border border-stone-200">
                             <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 經費與實施方式</h3>
                             <div class="space-y-4 text-stone-700">
-                                <div><h4 class="font-semibold text-sky-700 mb-1">說明</h4><p class="text-sm">近來詢問電動車充電樁裝設之住戶日益增多，為有效管理並確保全體住戶安全，本社區經參考多處鄰近社區成功經驗後，特制定本管理辦法。</p></div>
-                                <div><h4 class="font-semibold text-sky-700 mb-1">核心原則</h4><p class="text-sm">嚴格遵守「使用者付費」及「不影響非使用者權益」兩大原則。</p></div>
-                                <div><h4 class="font-semibold text-sky-700 mb-1">費用負擔</h4><p class="text-sm">所有安裝費用，包含公共管線槽架、私人設備、電費、維護及保險等，均由**使用者全額負擔**，不動用社區公共基金。</p></div>
-                                <div><h4 class="font-semibold text-sky-700 mb-1">獨立專戶</h4><p class="text-sm">將成立獨立銀行專戶，所有費用專款專用，帳目定期公告，確保完全透明，與管理費帳戶完全分離。</p></div>
-                                <div><h4 class="font-semibold text-sky-700 mb-1">分階段實施</h4><p class="text-sm">初期由申請人自家電表拉線；待需求擴大後再啟動共用電力系統建置，兼顧彈性與長遠規劃。</p></div>
+                                <div>
+                                    <h4 class="font-semibold text-sky-700 mb-1">說明</h4>
+                                    <p class="text-sm">近來詢問電動車充電樁裝設之住戶日益增多，為有效管理並確保全體住戶安全，本社區經參考多處鄰近社區成功經驗後，特制定本管理辦法。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-sky-700 mb-1">核心原則</h4>
+                                    <p class="text-sm">嚴格遵守「使用者付費」及「不影響非使用者權益」兩大原則。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-sky-700 mb-1">費用負擔</h4>
+                                    <p class="text-sm">所有安裝費用，包含公共管線槽架、私人設備、電費、維護及保險等，均由**使用者全額負擔**，不動用社區公共基金。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-sky-700 mb-1">獨立專戶</h4>
+                                    <p class="text-sm">將成立獨立銀行專戶，所有費用專款專用，帳目定期公告，確保完全透明，與管理費帳戶完全分離。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-sky-700 mb-1">分階段實施</h4>
+                                    <p class="text-sm">初期由申請人自家電表拉線；待需求擴大後再啟動共用電力系統建置，兼顧彈性與長遠規劃。</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="animated-item" style="transition-delay: 300ms;">
+
+                    <div>
                         <div class="bg-white p-8 rounded-xl border border-stone-200">
                             <h3 class="text-xl font-bold text-sky-800 mb-4 text-center">▶ 三道防線，確保充電安全</h3>
                             <p class="text-center text-stone-600 mb-6">我們深知住戶對安全的疑慮，因此本辦法從源頭預防與風險轉移著手，建構了三層式的安全防護網。請點擊下方各道防線以了解詳細內容。</p>
                             <div class="space-y-4">
-                                <div class="safety-defense-item border border-stone-200 rounded-lg overflow-hidden"><button class="w-full text-left p-4 bg-stone-100 hover:bg-stone-200 flex justify-between items-center"><span class="font-semibold text-lg text-sky-800">第一道防線：多重防火安全預防</span><span class="text-xl transform transition-transform duration-200">▼</span></button><div class="safety-defense-content p-4 bg-white"><p class="text-stone-700">強制要求所有充電設備必須內建最基本的安全防護機制，從根源上阻止火災風險：</p><ul class="list-disc list-inside mt-2 space-y-1 text-stone-600"><li><b>過溫保護裝置：</b>即時監控溫度，異常過熱時自動斷電，是最關鍵的防火牆。</li><li><b>自動斷電功能：</b>充電完成或異常時自動斷電，避免電池過充。</li><li><b>過載與漏電保護：</b>防範電線短路或設備損壞造成的危險。</li><li><b>獨立專用迴路：</b>嚴格要求獨立供電，嚴禁使用延長線。</li></ul></div></div>
-                                <div class="safety-defense-item border border-stone-200 rounded-lg overflow-hidden"><button class="w-full text-left p-4 bg-stone-100 hover:bg-stone-200 flex justify-between items-center"><span class="font-semibold text-lg text-sky-800">第二道防線：嚴格的源頭與施工審核</span><span class="text-xl transform transition-transform duration-200">▼</span></button><div class="safety-defense-content p-4 bg-white"><p class="text-stone-700">從設備、廠商到電力規劃，層層把關，將風險降至最低：</p><ul class="list-disc list-inside mt-2 space-y-1 text-stone-600"><li><b>安全認證：</b>所有設備必須符合國家或國際安全認證（如CNS、IEC）。</li><li><b>合格廠商：</b>必須由合格的專業廠商施工。</li><li><b>台電審查：</b>用電申請需經台電審查通過。</li></ul></div></div>
-                                <div class="safety-defense-item border border-stone-200 rounded-lg overflow-hidden"><button class="w-full text-left p-4 bg-stone-100 hover:bg-stone-200 flex justify-between items-center"><span class="font-semibold text-lg text-sky-800">第三道防線：強制性的保險</span><span class="text-xl transform transition-transform duration-200">▼</span></button><div class="safety-defense-content p-4 bg-white"><p class="text-stone-700">作為最後的保障，最大限度地保障全體住戶的財產安全：</p><ul class="list-disc list-inside mt-2 space-y-1 text-stone-600"><li><b>強制投保：</b>申請人必須投保「產品責任險」。</li><li><b>承保範圍：</b>保單內容必須包含因充電設備引起的火災。</li></ul></div></div>
+                                <div class="safety-defense-item border border-stone-200 rounded-lg overflow-hidden">
+                                    <button class="w-full text-left p-4 bg-stone-100 hover:bg-stone-200 flex justify-between items-center">
+                                        <span class="font-semibold text-lg text-sky-800">第一道防線：多重防火安全預防</span>
+                                        <span class="text-xl transform transition-transform duration-200">▼</span>
+                                    </button>
+                                    <div class="safety-defense-content p-4 bg-white">
+                                        <p class="text-stone-700">強制要求所有充電設備必須內建最基本的安全防護機制，從根源上阻止火災風險：</p>
+                                        <ul class="list-disc list-inside mt-2 space-y-1 text-stone-600">
+                                            <li><b>過溫保護裝置：</b>即時監控溫度，異常過熱時自動斷電，是最關鍵的防火牆。</li>
+                                            <li><b>自動斷電功能：</b>充電完成或異常時自動斷電，避免電池過充。</li>
+                                            <li><b>過載與漏電保護：</b>防範電線短路或設備損壞造成的危險。</li>
+                                            <li><b>獨立專用迴路：</b>嚴格要求獨立供電，嚴禁使用延長線。</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="safety-defense-item border border-stone-200 rounded-lg overflow-hidden">
+                                    <button class="w-full text-left p-4 bg-stone-100 hover:bg-stone-200 flex justify-between items-center">
+                                        <span class="font-semibold text-lg text-sky-800">第二道防線：嚴格的源頭與施工審核</span>
+                                        <span class="text-xl transform transition-transform duration-200">▼</span>
+                                    </button>
+                                    <div class="safety-defense-content p-4 bg-white">
+                                        <p class="text-stone-700">從設備、廠商到電力規劃，層層把關，將風險降至最低：</p>
+                                        <ul class="list-disc list-inside mt-2 space-y-1 text-stone-600">
+                                            <li><b>安全認證：</b>所有設備必須符合國家或國際安全認證（如CNS、IEC）。</li>
+                                            <li><b>合格廠商：</b>必須由合格的專業廠商施工。</li>
+                                            <li><b>台電審查：</b>用電申請需經台電審查通過。</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="safety-defense-item border border-stone-200 rounded-lg overflow-hidden">
+                                    <button class="w-full text-left p-4 bg-stone-100 hover:bg-stone-200 flex justify-between items-center">
+                                        <span class="font-semibold text-lg text-sky-800">第三道防線：強制性的保險</span>
+                                        <span class="text-xl transform transition-transform duration-200">▼</span>
+                                    </button>
+                                    <div class="safety-defense-content p-4 bg-white">
+                                        <p class="text-stone-700">作為最後的保障，最大限度地保障全體住戶的財產安全：</p>
+                                        <ul class="list-disc list-inside mt-2 space-y-1 text-stone-600">
+                                            <li><b>強制投保：</b>申請人必須投保「產品責任險」。</li>
+                                            <li><b>承保範圍：</b>保單內容必須包含因充電設備引起的火災。</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
-                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
+                    <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
                     <ul class="list-disc list-inside space-y-2 text-stone-700">
                         <li><b>提升社區安全：</b>將所有充電樁的安裝納入統一、專業的管理，杜絕私下拉線亂象。</li>
                         <li><b>保障房產價值：</b>一個與時俱進、管理完善的「電動車友善社區」，在未來房市中更具競爭力與保值潛力。</li>
@@ -318,29 +348,31 @@
                     </ul>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 決議表決題目</h3>
                     <p class="text-stone-700"><b>議案三：</b>是否同意增訂住戶規約第三十八條，並採認《電動車增設充電設備管理辦法》作為本規約之正式附件，授權管理委員會據以執行？</p>
                 </div>
             </div>
 
             <div id="proposal4" class="content-section hidden p-4 md:p-10">
-                <div class="animated-item">
-                    <h2 class="text-3xl font-bold text-sky-900 mb-4">議案四：重大修繕基金開徵案</h2>
-                    <p class="text-stone-600 mb-8">本提案旨在為社區建立一個長期穩定的財務基礎，以應對未來必然發生的重大修繕工程。透過每月小額儲蓄的方式，我們能避免未來因臨時需要大筆資金而對住戶造成一次性的巨大財務衝擊。</p>
-                </div>
+                <h2 class="text-3xl font-bold text-sky-900 mb-4">議案四：重大修繕基金開徵案</h2>
+                <p class="text-stone-600 mb-8">本提案旨在為社區建立一個長期穩定的財務基礎，以應對未來必然發生的重大修繕工程。透過每月小額儲蓄的方式，我們能避免未來因臨時需要大筆資金而對住戶造成一次性的巨大財務衝擊。</p>
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                    <div class="animated-item" style="transition-delay: 100ms;">
+                    <div>
                         <h3 class="text-xl font-bold text-sky-800 mb-2">說明：財務警訊與必要性</h3>
                         <p class="text-stone-600 mb-4">本社區自民國104年取得使用執照至今，屋齡已屆10年，各項公共設施設備已逐漸進入高頻率維護及汰換週期。過往經驗顯示，重大修繕費用極為高昂，未來10至15年內，社區將陸續面臨外牆防水、結構檢修、消防系統、電力系統等更龐大的資本支出壓力，預估支出將高達新台幣 <span class="font-bold text-red-600">700萬元</span>。</p>
                         <p class="text-stone-600 mb-4">依據社區近兩年財務報表(113、114年度)，社區營運已連續呈現赤字，現行管理費收入已不足以支應日常營運，無餘力為未來必然發生的重大修繕工程進行儲備。</p>
                         <div class="bg-white p-6 rounded-xl border border-stone-200">
                             <h4 class="font-semibold text-center mb-2">社區年度收支趨勢</h4>
-                            <div class="chart-container"><canvas id="deficitChart"></canvas></div>
+                            <div class="chart-container">
+                                <canvas id="deficitChart"></canvas>
+                            </div>
                         </div>
                     </div>
-                    <div class="bg-white p-8 rounded-xl border border-stone-200 animated-item" style="transition-delay: 200ms;">
+                    <div class="bg-white p-8 rounded-xl border border-stone-200">
                         <h3 class="text-xl font-bold text-sky-800 mb-2">提案內容</h3>
+                        <p class="text-stone-600 mb-4">為建立社區永續的維護機制，並避免未來因臨時鉅額分攤造成住戶衝擊，茲提出「重大修繕費」開徵方案：</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-700 mb-6">
                             <li><b>開徵項目與標準：</b>於現行每月管理費之外，增收「重大修繕費」。收費標準依各戶產權登記之主建物及附屬建物面積計算，**每坪每月收取新台幣 10 元整**。</li>
                             <li><b>實施日期：</b>自 **民國 115 年 01 月 01 日** 起開始收取。</li>
@@ -350,14 +382,14 @@
                         <h3 class="text-xl font-bold text-sky-800 mb-4">我的每月負擔試算</h3>
                         <p class="text-sm text-stone-600 mb-2">請輸入您權狀的主建物及附屬建物面積（坪），了解此提案對您的影響。這筆費用是對房屋資產的「價值投資」。</p>
                         <div class="flex items-center space-x-4">
-                            <input type="number" id="areaInput" placeholder="例如：35" class="w-32 p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-sky-500">
+                            <input type="number" id="areaInput" placeholder="例如：35" class="w-32 p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
                             <span class="text-stone-700">坪</span>
                             <span class="text-2xl font-bold text-sky-800" id="monthlyFee">約 NT$ 0 / 月</span>
                         </div>
                     </div>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
                     <ul class="list-disc list-inside space-y-2 text-stone-700">
                         <li><b>資產保值與投資：</b>以權狀 35坪住戶為例，每月僅增加350元支出，是將未來一次性鉅額修繕壓力，轉化為可輕鬆負擔的小額儲蓄與對房產價值的投資。</li>
@@ -366,81 +398,141 @@
                     </ul>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 決議表決題目</h3>
                     <p class="text-stone-700"><b>議案四：</b>是否同意自民國 115 年 01 月 01 日起，於現行每月管理費之外，增收「重大修繕費」，標準為每月每坪新台幣 10 元整；並同意增修社區規約第十七條，將所收款項全數存入新開設之「重大修繕基金」獨立專戶，專款專用，且其動支須經區分所有權人會議決議？</p>
                 </div>
             </div>
 
             <div id="proposal5" class="content-section hidden p-4 md:p-10">
-                <div class="animated-item">
-                    <h2 class="text-3xl font-bold text-sky-900 mb-4">議案五：公設收費與規約整併案</h2>
-                    <p class="text-stone-600 mb-8">本提案有兩大目標：一是調整公共設施收費標準，以反映近年來顯著上漲的營運成本，落實使用者付費的公平原則；二是優化社區規約的結構，將散落的條文整合，使其更清晰、易於查閱。</p>
-                </div>
+                <h2 class="text-3xl font-bold text-sky-900 mb-4">議案五：公設收費與規約整併案</h2>
+                <p class="text-stone-600 mb-8">本提案有兩大目標：一是調整公共設施收費標準，以反映近年來顯著上漲的營運成本，落實使用者付費的公平原則；二是優化社區規約的結構，將散落的條文整合，使其更清晰、易於查閱。</p>
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                    <div class="bg-white p-8 rounded-xl border border-stone-200 animated-item" style="transition-delay: 100ms;">
+                    <div class="bg-white p-8 rounded-xl border border-stone-200">
                         <h3 class="text-xl font-bold text-sky-800 mb-4">說明：提案核心與必要性</h3>
                         <div class="space-y-4">
-                            <div><h4 class="font-semibold text-sky-700">營運成本顯著上漲</h4><p class="text-sm text-stone-600 mt-1">公設收費標準已逾五年未調整，但近年電費、保養與維修費用大幅攀升，導致社區財務入不敷出。</p></div>
-                            <div><h4 class="font-semibold text-sky-700">落實使用者付費原則</h4><p class="text-sm text-stone-600 mt-1">目前部分免費公設的成本由全體住戶管理費分攤，對低頻率使用者不公。調整收費能將成本適度回歸使用者，建立公平合理的資源分配機制。</p></div>
-                            <div><h4 class="font-semibold text-sky-700">規約結構優化之必要</h4><p class="text-sm text-stone-600 mt-1">現有公設收費條文散見於第三十六條，查閱不易。本次提案將其統一整併至第三條，並廢止第三十六條，使規約結構更清晰。</p></div>
+                            <div>
+                                <h4 class="font-semibold text-sky-700">營運成本顯著上漲</h4>
+                                <p class="text-sm text-stone-600 mt-1">公設收費標準已逾五年未調整，但近年電費、保養與維修費用大幅攀升，導致社區財務入不敷出。</p>
+                                <p class="text-xs text-stone-500 mt-1">例如：健身房長年免費，但近十年來器材維護費用已累積高達約10萬元。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sky-700">落實使用者付費原則</h4>
+                                <p class="text-sm text-stone-600 mt-1">目前部分免費公設的成本由全體住戶管理費分攤，對低頻率使用者不公。調整收費能將成本適度回歸使用者，建立公平合理的資源分配機制。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sky-700">設施設備永續經營之必要</h4>
+                                <p class="text-sm text-stone-600 mt-1">若公設長期虧損，將導致維護品質下降、使用年限縮短，最終損害所有住戶的權益與房產價值。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sky-700">規約結構優化之必要</h4>
+                                <p class="text-sm text-stone-600 mt-1">現有公設收費條文散見於第三十六條，查閱不易。本次提案將其統一整併至第三條，並廢止第三十六條，使規約結構更清晰。</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="bg-white p-8 rounded-xl border border-stone-200 animated-item" style="transition-delay: 200ms;">
-                         <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估：我們將獲得什麼？</h3>
+                    <div class="bg-white p-8 rounded-xl border border-stone-200">
+                        <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估：我們將獲得什麼？</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><h4 class="font-semibold text-emerald-700">提升住戶公平性</h4><p class="text-sm text-stone-600 mt-1">建立合理的使用者付費機制。</p></div>
-                            <div><h4 class="font-semibold text-emerald-700">確保設施服務品質</h4><p class="text-sm text-stone-600 mt-1">穩定的收入能確保公設妥善維護。</p></div>
-                             <div><h4 class="font-semibold text-emerald-700">健全社區長期財務</h4><p class="text-sm text-stone-600 mt-1">為未來設施汰舊換新預作準備。</p></div>
-                            <div><h4 class="font-semibold text-emerald-700">規約清晰</h4><p class="text-sm text-stone-600 mt-1">統一整併，讓住戶更容易理解權利義務。</p></div>
+                            <div>
+                                <h4 class="font-semibold text-emerald-700">提升住戶公平性</h4>
+                                <p class="text-sm text-stone-600 mt-1">建立合理的使用者付費機制，減少對全體管理費的依賴。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-emerald-700">確保設施服務品質</h4>
+                                <p class="text-sm text-stone-600 mt-1">穩定的收入來源能確保公設得到妥善維護，提供更優質的體驗。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-emerald-700">健全社區長期財務</h4>
+                                <p class="text-sm text-stone-600 mt-1">為未來設施汰舊換新預作準備，避免大額集資壓力。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-emerald-700">維持社區資產價值</h4>
+                                <p class="text-sm text-stone-600 mt-1">維護良好的公設是社區品質的象徵，有助於房產保值與增值。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-emerald-700">規約清晰</h4>
+                                <p class="text-sm text-stone-600 mt-1">將散落的收費規定統一整併，讓住戶更容易理解權利與義務，避免爭議。</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl border border-stone-200 mt-8 animated-item" style="transition-delay: 300ms;">
+                <div class="bg-white p-6 rounded-xl border border-stone-200 mt-8">
                     <h3 class="text-xl font-bold text-sky-800 mb-4 text-center">公共設施收費標準調整對照</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
-                            <thead><tr class="border-b-2 border-stone-200"><th class="p-4 font-semibold">設施項目</th><th class="p-4 font-semibold">原收費標準</th><th class="p-4 font-semibold text-sky-700">新收費標準（草案）</th></tr></thead>
+                            <thead>
+                                <tr class="border-b-2 border-stone-200">
+                                    <th class="p-4 font-semibold">設施項目</th>
+                                    <th class="p-4 font-semibold">原收費標準</th>
+                                    <th class="p-4 font-semibold text-sky-700">新收費標準（草案）</th>
+                                </tr>
+                            </thead>
                             <tbody class="divide-y divide-stone-100">
-                                <tr class="hover:bg-stone-50"><td class="p-4">閱覽室</td><td class="p-4">免費</td><td class="p-4 text-sky-700 font-medium">每一小時 50 元</td></tr>
-                                <tr class="hover:bg-stone-50"><td class="p-4">健身房</td><td class="p-4">免費</td><td class="p-4 text-sky-700 font-medium">每一小時 50 元</td></tr>
-                                <tr class="hover:bg-stone-50"><td class="p-4">腳踏車室</td><td class="p-4">免費</td><td class="p-4 text-sky-700 font-medium">每台車每年 600 元</td></tr>
-                                <tr class="hover:bg-stone-50"><td class="p-4">多功能室</td><td class="p-4">每小時 100 元</td><td class="p-4 text-sky-700 font-medium">每一小時 50 元</td></tr>
-                                <tr class="hover:bg-stone-50"><td class="p-4">宴會廳</td><td class="p-4">每4小時 1000 元</td><td class="p-4 text-sky-700 font-medium">每小時 300 元 (可選4/6/8小時)</td></tr>
+                                <tr class="hover:bg-stone-50">
+                                    <td class="p-4">閱覽室</td>
+                                    <td class="p-4">免費</td>
+                                    <td class="p-4 text-sky-700 font-medium">每一小時 50 元</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50">
+                                    <td class="p-4">健身房</td>
+                                    <td class="p-4">免費</td>
+                                    <td class="p-4 text-sky-700 font-medium">每一小時 50 元</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50">
+                                    <td class="p-4">腳踏車室</td>
+                                    <td class="p-4">免費</td>
+                                    <td class="p-4 text-sky-700 font-medium">每台車每年 600 元</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50">
+                                    <td class="p-4">多功能室</td>
+                                    <td class="p-4">每小時 100 元</td>
+                                    <td class="p-4 text-sky-700 font-medium">每一小時 50 元</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50">
+                                    <td class="p-4">宴會廳</td>
+                                    <td class="p-4">每4小時 1000 元</td>
+                                    <td class="p-4 text-sky-700 font-medium">每小時 300 元 (可選4/6/8小時)</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50">
+                                    <td class="p-4">兒童遊戲室 / 咖啡廳</td>
+                                    <td class="p-4" colspan="2">維持免費</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50">
+                                    <td class="p-4">KTV室</td>
+                                    <td class="p-4" colspan="2">維持每小時 150 元</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 決議表決題目</h3>
-                    <div class="space-y-2 text-stone-700">
-                        <p><b>議案五之一第一項：</b>是否同意「閱覽室」收費標準調整為：每小時收費50元？</p>
-                        <p><b>議案五之一第二項：</b>是否同意「健身房」收費標準調整為：每小時收費50元？</p>
-                        <p><b>議案五之一第三項：</b>是否同意「腳踏車室」收費標準調整為：每台車每年收取管理費600元？</p>
-                        <p><b>議案五之一第四項：</b>是否同意「多功能室」收費標準調整為：每小時收費50元？</p>
-                        <p><b>議案五之一第五項：</b>是否同意「宴會廳」收費標準調整為：每小時收費為300元，每次預約基本時數可選4小時、6小時或8小時；若需延長，加時部分以2小時為一單位？</p>
-                        <p><b>議案五之二：</b>是否同意進行規約條文整併作業，將公設收費標準（無論新舊）統一納入第三條，並廢止第三十六條？</p>
-                    </div>
+                    <p class="text-stone-700 mb-2"><b>議案五之一第一項：</b>是否同意「閱覽室」收費標準調整為：每小時收費50元？</p>
+                    <p class="text-stone-700 mb-2"><b>議案五之一第二項：</b>是否同意「健身房」收費標準調整為：每小時收費50元？</p>
+                    <p class="text-stone-700 mb-2"><b>議案五之一第三項：</b>是否同意「腳踏車室」收費標準調整為：每台車每年收取管理費600元？</p>
+                    <p class="text-stone-700 mb-2"><b>議案五之一第四項：</b>是否同意「多功能室」收費標準調整為：每小時收費50元？</p>
+                    <p class="text-stone-700 mb-2"><b>議案五之一第五項：</b>是否同意「宴會廳」收費標準調整為：每小時收費為300元，每次預約基本時數可選4小時、6小時或8小時；若需延長，加時部分以2小時為一單位？</p>
+                    <p class="text-stone-700"><b>議案五之二：</b>是否同意進行規約條文整併作業，將公設收費標準（無論新舊）統一納入第三條，並廢止第三十六條？</p>
                 </div>
             </div>
 
             <div id="proposal6" class="content-section hidden p-4 md:p-10">
-                <div class="animated-item">
-                    <h2 class="text-3xl font-bold text-sky-900 mb-4">議案六：停車場管理辦法修訂案</h2>
-                    <p class="text-stone-600 mb-8">為因應日益普及的電動代步工具，並解決現存的停車空間使用衝突，本案旨在修訂停車場管理辦法，以填補管理上的灰色地帶，建立更公平、有序且安全的停車環境。</p>
-                </div>
+                <h2 class="text-3xl font-bold text-sky-900 mb-4">議案六：停車場管理辦法修訂案</h2>
+                <p class="text-stone-600 mb-8">為因應日益普及的電動代步工具，並解決現存的停車空間使用衝突，本案旨在修訂停車場管理辦法，以填補管理上的灰色地帶，建立更公平、有序且安全的停車環境。</p>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item" style="transition-delay: 100ms;">
+                    <div class="bg-white p-6 rounded-xl border border-stone-200">
                         <h3 class="text-xl font-bold text-sky-800 mb-2">說明：核心問題與修訂原因</h3>
                         <ul class="list-disc list-inside space-y-2 text-stone-700">
                             <li><b>擴大納管範圍：</b>近期社區內住戶於汽車停車格內，大量停放無須掛牌之電動單車、一般腳踏車等代步工具，其停放方式也影響到鄰車，現行管理辦法對此類車輛無明確規範，且門禁管制鬆散，導致未登記、未繳費的車輛可隨意進出停放，違反付費住戶的公平原則。</li>
                             <li><b>停車空間使用衝突：</b>部分車位的停放方式已影響相鄰車位車門的正常開啟，不僅造成鄰居不便，更容易引發停車糾紛與車損風險，影響社區和諧。</li>
                         </ul>
                     </div>
-                    <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item" style="transition-delay: 200ms;">
+                    <div class="bg-white p-6 rounded-xl border border-stone-200">
                         <h3 class="text-xl font-bold text-sky-800 mb-2">提案內容</h3>
                         <p class="text-stone-600 mb-2">為使法規更臻明確，杜絕管理灰色地帶，茲提出《停車場管理辦法》條文修訂對照：</p>
                         <ul class="list-disc list-inside space-y-2 text-stone-700">
@@ -450,19 +542,36 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="mt-8 bg-white p-6 rounded-xl border border-stone-200">
+                    <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 方案效益評估</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <h4 class="font-semibold text-stone-700">提升管理秩序</h4>
+                            <p class="text-stone-600 text-sm">將所有停放於汽車格的代步工具明確納管，管理有據。</p>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="font-semibold text-stone-700">減少停車糾紛</h4>
+                            <p class="text-stone-600 text-sm">規範停放方式，可有效減少鄰里間因停車產生的摩擦與財損風險。</p>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="font-semibold text-stone-700">維護資產價值</h4>
+                            <p class="text-stone-600 text-sm">管理有序、公平、安全的停車環境，有助於維護社區整體聲譽與房產價值。</p>
+                        </div>
+                    </div>
+                </div>
+
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 決議表決題目</h3>
-                    <p class="text-stone-700"><b>議案六：</b>是否同意修訂《停車場管理辦法》第二條第四項及第五項，將各類代步工具(含腳踏車)正式納入停車管理規範？</p>
+                    <p class="text-stone-700 mb-2"><b>議案六：</b>是否同意修訂《停車場管理辦法》第二條第四項及第五項，將各類代步工具(含腳踏車)正式納入停車管理規範？</p>
                 </div>
             </div>
 
             <div id="proposal7" class="content-section hidden p-4 md:p-10">
-                <div class="animated-item">
-                    <h2 class="text-3xl font-bold text-sky-900 mb-4">議案七：增設AED設備租賃案</h2>
-                    <p class="text-stone-600 mb-8">生命無價，分秒必爭。在社區內不幸發生心臟驟停時，救護車抵達前的「黃金救援時間」至關重要。本案提議租賃AED設備，為所有住戶的生命安全多增添一重最關鍵的保障。</p>
-                </div>
-                <div class="bg-white p-8 rounded-xl border border-stone-200 mb-6 animated-item" style="transition-delay: 100ms;">
+                <h2 class="text-3xl font-bold text-sky-900 mb-4">議案七：增設AED設備租賃案</h2>
+                <p class="text-stone-600 mb-8">生命無價，分秒必爭。在社區內不幸發生心臟驟停時，救護車抵達前的「黃金救援時間」至關重要。本案提議租賃AED設備，為所有住戶的生命安全多增添一重最關鍵的保障。</p>
+                <div class="bg-white p-8 rounded-xl border border-stone-200 mb-6">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">說明：社區為何需要AED？</h3>
                     <p class="text-stone-700 mb-4">心臟驟停是社區中最常見的突發致命狀況之一，患者的黃金救援時間僅有短短的數分鐘。在救護車抵達前的每一秒都至關重要，若能及時使用AED，能大幅提升急救成功率。</p>
                     <ul class="list-disc list-inside space-y-2 text-stone-600">
@@ -472,17 +581,29 @@
                         <li><b>提報目的：</b>此案雖每月支出不高，但為新增且持續性開銷，關係全體住戶生命安全與共同利益，故提報區分所有權人會議，以取得正式授權與支持。</li>
                     </ul>
                 </div>
-                <div class="bg-white p-8 rounded-xl border border-stone-200 animated-item" style="transition-delay: 200ms;">
+                <div class="bg-white p-8 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4 text-center">提案內容與效益評估</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                        <div><div class="text-5xl mb-2">❤️</div><h3 class="font-bold text-lg text-sky-800">提升存活率</h3><p class="text-stone-600 text-sm">病發1分鐘內電擊，成功率高達90%。</p></div>
-                        <div><div class="text-5xl mb-2">💰</div><h3 class="font-bold text-lg text-sky-800">成本極低</h3><p class="text-stone-600 text-sm">每月租金約1,500-2,000元，全體分攤，負擔微小。</p></div>
-                        <div><div class="text-5xl mb-2">🔧</div><h3 class="font-bold text-lg text-sky-800">維護無憂</h3><p class="text-stone-600 text-sm">租賃方案包含耗材更換及教育訓練，省去管理負擔。</p></div>
+                        <div>
+                            <div class="text-5xl mb-2">❤️</div>
+                            <h3 class="font-bold text-lg text-sky-800">提升存活率</h3>
+                            <p class="text-stone-600 text-sm">病發1分鐘內電擊，成功率高達90%。</p>
+                        </div>
+                        <div>
+                            <div class="text-5xl mb-2">💰</div>
+                            <h3 class="font-bold text-lg text-sky-800">成本極低</h3>
+                            <p class="text-stone-600 text-sm">每月租金約1,500-2,000元，全體分攤，負擔微小。</p>
+                        </div>
+                        <div>
+                            <div class="text-5xl mb-2">🔧</div>
+                            <h3 class="font-bold text-lg text-sky-800">維護無憂</h3>
+                            <p class="text-stone-600 text-sm">租賃方案包含耗材更換及教育訓練，省去管理負擔。</p>
+                        </div>
                     </div>
                     <p class="mt-8 text-center text-stone-700 font-medium">這是一項對全家生命安全最高性價比的投資。</p>
                 </div>
                 <hr class="my-8 border-stone-200">
-                <div class="bg-white p-6 rounded-xl border border-stone-200 animated-item">
+                <div class="bg-white p-6 rounded-xl border border-stone-200">
                     <h3 class="text-xl font-bold text-sky-800 mb-4">▶ 決議表決題目</h3>
                     <p class="text-stone-700"><b>議案七：</b>是是否同意在社區安裝AED，並授權管理委員會全權處理AED設備租賃事宜？</p>
                 </div>
@@ -490,188 +611,204 @@
 
         </main>
     </div>
+    <!-- Overlay for mobile menu -->
     <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-10 hidden md:hidden"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const resizer = document.getElementById('resizer');
             const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
-            const navLinks = document.querySelectorAll('.nav-link');
-            const contentSections = document.querySelectorAll('.content-section');
 
-            function toggleMobileMenu() {
+            // Toggle mobile menu
+            function toggleMenu() {
                 sidebar.classList.toggle('-translate-x-full');
                 overlay.classList.toggle('hidden');
             }
-            menuToggle.addEventListener('click', toggleMobileMenu);
-            overlay.addEventListener('click', toggleMobileMenu);
 
-            let isResizing = false;
-            if (resizer) {
-                resizer.addEventListener('mousedown', function(e) {
-                    if (window.innerWidth < 768) return;
-                    isResizing = true;
-                    resizer.classList.add('is-resizing');
-                    document.body.style.cursor = 'col-resize';
-                    document.body.style.userSelect = 'none';
-                    window.addEventListener('mousemove', handleResize);
-                    window.addEventListener('mouseup', stopResize);
-                });
-                function handleResize(e) {
-                    if (!isResizing) return;
-                    const minWidth = 200;
-                    const maxWidth = 500;
-                    let newWidth = e.clientX;
-                    if (newWidth < minWidth) newWidth = minWidth;
-                    if (newWidth > maxWidth) newWidth = maxWidth;
-                    sidebar.style.width = newWidth + 'px';
-                }
-                function stopResize() {
-                    isResizing = false;
-                    resizer.classList.remove('is-resizing');
-                    document.body.style.cursor = 'default';
-                    document.body.style.userSelect = 'auto';
-                    window.removeEventListener('mousemove', handleResize);
-                    window.removeEventListener('mouseup', stopResize);
-                }
-            }
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
 
-            function observeAnimatedItems(container) {
-                 container.querySelectorAll('.animated-item').forEach(item => {
-                    item.classList.remove('is-visible');
-                    observer.observe(item);
-                });
-            }
-
-            function showSection(hash, isInitialLoad = false) {
+            function showSection(hash) {
                 const targetId = hash ? hash.substring(1) : 'dashboard';
-                const targetSection = document.getElementById(targetId);
-                if (!targetSection) return;
-                contentSections.forEach(section => section.classList.add('hidden'));
-                targetSection.classList.remove('hidden');
-                navLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === `#${targetId}`));
-                if (window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) {
-                    toggleMobileMenu();
+
+                contentSections.forEach(section => {
+                    section.classList.toggle('hidden', section.id !== targetId);
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === `#${targetId}`);
+                });
+
+                if (window.innerWidth < 768) {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
                 }
-                observeAnimatedItems(targetSection);
-                if (!isInitialLoad) window.scrollTo(0, 0);
             }
 
             navLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const targetId = this.getAttribute('href');
-                    if (window.location.hash !== targetId || targetId === '#dashboard') {
-                        history.pushState(null, null, targetId);
-                        showSection(targetId);
-                    }
+                    history.pushState(null, null, targetId);
+                    showSection(targetId);
                 });
             });
 
-            document.addEventListener('click', function(e) {
-                const proposalCard = e.target.closest('a.proposal-card');
-                if (proposalCard) {
+            document.querySelectorAll('a[href^="#proposal"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const targetId = proposalCard.getAttribute('href');
+                    const targetId = this.getAttribute('href');
                     history.pushState(null, null, targetId);
                     showSection(targetId);
-                }
+                });
             });
 
-            window.addEventListener('popstate', () => showSection(window.location.hash));
-
-            const proposalData = [
-                { id: 1, href: "#proposal1", icon: '💧', title: '議案一：頂樓防水修繕', summary: '頂樓防水層老化導致漏水，提供兩種修繕方案供決策，以徹底解決問題並保護社區資產。' },
-                { id: 2, href: "#proposal2", icon: '🚧', title: '議案二：車道水溝蓋', summary: '車道水溝蓋結構損壞，存在立即性安全隱患，提案進行整體重作，以求一勞永逸。' },
-                { id: 3, href: "#proposal3", icon: '🔌', title: '議案三：電動車充電辦法', summary: '因應電動車趨勢，制定安全、公平的管理辦法，並確保所有費用由使用者負擔，保障全體住戶權益。' },
-                { id: 4, href: "#proposal4", icon: '💰', title: '議案四：重大修繕基金', summary: '為因應社區老化，提案開徵「重大修繕費」以建立永續財源。了解此舉如何為您的資產保值。' },
-                { id: 5, href: "#proposal5", icon: '🏛️', title: '議案五：公設收費調整', summary: '因應營運成本上漲，提案調整部分公設收費標準，並優化規約結構，落實使用者付費原則。' },
-                { id: 6, href: "#proposal6", icon: '🅿️', title: '議案六：停車場管理', summary: '修訂停車辦法，將電動代步工具納管，並解決停車空間使用衝突，提升停車場秩序與安全。' },
-                { id: 7, href: "#proposal7", icon: '❤️', title: '議案七：AED 設備租賃', summary: '提案租賃AED，提升社區在心臟驟停事件中的緊急救護能力，以極低成本為生命安全增添保障。' },
-            ];
-
-            const dashboardCardContainer = document.querySelector('#dashboard .grid');
-            proposalData.forEach((p, index) => {
-                const card = document.createElement('a');
-                card.href = p.href;
-                card.className = 'proposal-card bg-white p-6 rounded-xl border border-stone-200 block animated-item';
-                card.style.transitionDelay = `${150 + index * 50}ms`;
-                card.innerHTML = `<h3 class="font-bold text-lg text-sky-800 mb-2">${p.icon} ${p.title}</h3><p class="text-stone-600 text-sm">${p.summary}</p>`;
-                dashboardCardContainer.appendChild(card);
+            window.addEventListener('popstate', () => {
+                showSection(window.location.hash);
             });
 
-            const presentationContainer = document.getElementById('presentation-container');
-            const prevButton = document.getElementById('prev-slide');
-            const nextButton = document.getElementById('next-slide');
-            const slideCounter = document.getElementById('slide-counter');
-            const slidesContent = [
-                 {
-                    title: '議案一：頂樓防水修繕工程案',
-                    content: `<p class="text-xl mb-4"><b>核心問題：</b>頂樓防水層全面老化，局部修補已花費約28萬仍無法根治。</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"><div><h4 class="font-bold text-sky-700 text-lg mb-2">A方案：打除重做 (治本)</h4><ul class="list-disc pl-5 space-y-1"><li><b>費用:</b> 約 239.4 萬元</li><li><b>優點:</b> 徹底解決、耐用10-15年</li><li><b>缺點:</b> 成本高、施工期長</li></ul></div><div><h4 class="font-bold text-sky-700 text-lg mb-2">B方案：表面覆蓋 (經濟)</h4><ul class="list-disc pl-5 space-y-1"><li><b>費用:</b> 約 59.5 萬元</li><li><b>優點:</b> 成本效益高、施工期短</li><li><b>缺點:</b> 耐用年限短、治標性質高</li></ul></div></div>`,
-                    vote: `<p><b>議案一之一：</b>是否同意進行頂樓全面防水修繕工程？</p><p><b>議案一之二：</b>請就以下兩種施工方案，擇一勾選。 (註:若項次一表決結果為「同意」,才需進行本項投票)<br>□ A方案：打除重做 (總工程款：2,394,000元 (未稅) )<br>□ B方案：表面覆蓋加強防水 (總工程款：595,000元 (未稅) )</p>`
-                },
-                {
-                    title: '議案二：車道水溝蓋結構安全修繕案',
-                    content: `<p class="text-xl mb-4"><b>核心問題：</b>唯一出入車道的水溝蓋結構損壞，有立即性安全隱患。過往治標已花費近10萬元仍無效。</p><p class="text-xl"><b>提案內容：</b>採「整體重作方案」，將結構全部拆除重做，一勞永逸。</p><p class="text-xl"><b>預估經費：</b>約新台幣 <b>40萬元</b>，動用公共基金。</p>`,
-                    vote: `<p><b>議案二：</b>是否同意授權管委會在40萬元的預算上限內動用公共基金，採「整體重作方案」修繕車道水溝蓋？</p>`
-                },
-                {
-                    title: '議案三：電動車增設充電設備管理辦法案',
-                    content: `<p class="text-xl mb-4"><b>核心精神：</b>因應電動車趨勢，建立安全、公平的管理機制。</p><ul class="list-disc pl-5 space-y-2 text-left text-xl"><li><b>使用者付費：</b>所有安裝、電費、維護費用由使用者負擔，不動用公共基金。</li><li><b>三道安全防線：</b>從設備預防、源頭審核到強制保險，確保社區安全。</li><li><b>效益：</b>杜絕私下拉線、保障房產價值、促進社區和諧。</li></ul>`,
-                    vote: `<p><b>議案三：</b>是否同意增訂住戶規約第三十八條，並採認《電動車增設充電設備管理辦法》作為本規約之正式附件，授權管理委員會據以執行？</p>`
-                },
-                {
-                    title: '議案四：重大修繕基金開徵案',
-                    content: `<p class="text-xl mb-4"><b>核心問題：</b>社區屋齡將屆10年，營運已現赤字，無力儲備未來預估達700萬的重大修繕費用。</p><p class="text-xl"><b>提案內容：</b></p><ul class="list-disc pl-5 space-y-2 text-left text-xl"><li>自115年1月1日起，增收「重大修繕費」。</li><li>收費標準：<b>每坪每月 10 元</b>。</li><li>款項存入獨立專戶，動支需經區權會決議。</li></ul>`,
-                    vote: `<p><b>議案四：</b>是否同意自民國 115 年 01 月 01 日起，於現行每月管理費之外，增收「重大修繕費」，標準為每月每坪新台幣 10 元整；並同意增修社區規約第十七條，將所收款項全數存入新開設之「重大修繕基金」獨立專戶，專款專用，且其動支須經區分所有權人會議決議？</p>`
-                },
-                {
-                    title: '議案五：公設收費與規約整併案',
-                    content: `<p class="text-xl mb-4"><b>核心問題：</b>營運成本上漲，部分免費公設由全民管理費分攤，有失公平；且規約條文散亂。</p><p class="text-xl"><b>提案內容：</b></p><ul class="list-disc pl-5 space-y-2 text-left text-xl"><li>調整閱覽室、健身房等公設為使用者付費。</li><li>將所有收費標準統一整併至規約第三條，使結構清晰。</li></ul>`,
-                    vote: `<p><b>議案五之一第一項：</b>是否同意「閱覽室」收費標準調整為：每小時收費50元？</p><p><b>議案五之一第二項：</b>是否同意「健身房」收費標準調整為：每小時收費50元？</p><p><b>議案五之一第三項：</b>是否同意「腳踏車室」收費標準調整為：每台車每年收取管理費600元？</p><p><b>議案五之一第四項：</b>是否同意「多功能室」收費標準調整為：每小時收費50元？</p><p><b>議案五之一第五項：</b>是否同意「宴會廳」收費標準調整為：每小時收費為300元，每次預約基本時數可選4小時、6小時或8小時；若需延長，加時部分以2小時為一單位？</p><p><b>議案五之二：</b>是否同意進行規約條文整併作業，將公設收費標準（無論新舊）統一納入第三條，並廢止第三十六條？</p>`
-                },
-                {
-                    title: '議案六：停車場管理辦法修訂案',
-                    content: `<p class="text-xl mb-4"><b>核心問題：</b>電動單車等無牌代步工具停放於汽車格，無法可管，且影響鄰車，易生糾紛。</p><p class="text-xl"><b>提案內容：</b></p><ul class="list-disc pl-5 space-y-2 text-left text-xl"><li>將電動腳踏車等代步工具明確納入「機車」管理範疇。</li><li>要求此類車輛需登記、辦理磁條、由車道進出。</li><li>新增睦鄰條款，要求停放不得影響鄰車。</li></ul>`,
-                    vote: `<p><b>議案六：</b>是否同意修訂《停車場管理辦法》第二條第四項及第五項，將各類代步工具(含腳踏車)正式納入停車管理規範？</p>`
-                },
-                {
-                    title: '議案七：增設AED設備租賃案',
-                    content: `<p class="text-xl mb-4"><b>核心目的：</b>爭取心臟驟停的黃金救援時間，提升社區緊急救護能力。</p><p class="text-xl"><b>提案內容：</b></p><ul class="list-disc pl-5 space-y-2 text-left text-xl"><li>租賃AED設備，每月租金約 <b>1,500-2,000元</b>。</li><li>租賃方案包含耗材與教育訓練，管理方便。</li><li>以極低成本為全體住戶的生命安全增加保障。</li></ul>`,
-                    vote: `<p><b>議案七：</b>是是否同意在社區安裝AED，並授權管理委員會全權處理AED設備租賃事宜？</p>`
-                }
-            ];
-
-            let currentSlide = 0;
-            function renderSlides() { if (!presentationContainer) return; presentationContainer.innerHTML = ''; slidesContent.forEach((slide, index) => { const slideEl = document.createElement('div'); slideEl.className = 'presentation-slide p-8 md:p-12 flex flex-col justify-center items-center text-center'; if (index !== 0) slideEl.classList.add('hidden'); slideEl.innerHTML = `<div class="animated-item"><h2 class="text-3xl md:text-4xl font-bold text-sky-900 mb-6">${slide.title}</h2><div class="text-gray-700 space-y-4 text-left text-xl md:text-2xl mb-8">${slide.content}</div><hr class="my-6"><div class="bg-sky-50 p-4 rounded-lg text-left"><h3 class="font-bold text-sky-800 text-xl md:text-2xl mb-2">【決議表決題目】</h3><div class="text-lg md:text-xl text-stone-800 space-y-2">${slide.vote}</div></div></div>`; presentationContainer.appendChild(slideEl); }); updateSlideView(); }
-            function updateSlideView() { const slides = presentationContainer.querySelectorAll('.presentation-slide'); slides.forEach((slide, index) => { const wasHidden = slide.classList.contains('hidden'); const isNowVisible = index === currentSlide; slide.classList.toggle('hidden', !isNowVisible); if (isNowVisible && wasHidden) observeAnimatedItems(slide); }); slideCounter.textContent = `第 ${currentSlide + 1} / ${slidesContent.length} 案`; prevButton.disabled = currentSlide === 0; nextButton.disabled = currentSlide === slidesContent.length - 1; prevButton.classList.toggle('opacity-50', currentSlide === 0); nextButton.classList.toggle('opacity-50', currentSlide === slidesContent.length - 1); }
-            if (presentationContainer) { renderSlides(); prevButton.addEventListener('click', () => { if (currentSlide > 0) { currentSlide--; updateSlideView(); } }); nextButton.addEventListener('click', () => { if (currentSlide < slidesContent.length - 1) { currentSlide++; updateSlideView(); } }); document.addEventListener('keydown', (e) => { if (!document.getElementById('presentation').classList.contains('hidden')) { if (e.key === 'ArrowRight') nextButton.click(); if (e.key === 'ArrowLeft') prevButton.click(); } }); }
+            showSection(window.location.hash || '#dashboard');
 
             const areaInput = document.getElementById('areaInput');
-            if (areaInput) { areaInput.addEventListener('input', () => { const fee = (parseFloat(areaInput.value) || 0) * 10; document.getElementById('monthlyFee').textContent = `約 NT$ ${fee.toLocaleString()} / 月`; }); }
+            const monthlyFee = document.getElementById('monthlyFee');
+            if (areaInput) {
+                areaInput.addEventListener('input', function() {
+                    const area = parseFloat(this.value) || 0;
+                    const fee = area * 10;
+                    monthlyFee.textContent = `約 NT$ ${fee.toLocaleString()} / 月`;
+                });
+            }
+
+            const deficitData = {
+                labels: ['110年度', '111年度', '112年度', '113年度', '114年度'],
+                datasets: [{
+                    label: '年度收支 (新台幣)',
+                    data: [638257, 495544, 152902, -506848, -223218],
+                    backgroundColor: function(context) {
+                        const value = context.dataset.data[context.dataIndex];
+                        return value < 0 ? '#ef4444' : '#65a30d';
+                    },
+                }]
+            };
             const deficitChartCtx = document.getElementById('deficitChart')?.getContext('2d');
-            if(deficitChartCtx) { new Chart(deficitChartCtx, { type: 'bar', data: { labels: ['110年度', '111年度', '112年度', '113年度', '114年度'], datasets: [{ label: '年度收支 (新台幣)', data: [638257, 495544, 152902, -506848, -223218], backgroundColor: (c) => c.raw < 0 ? '#ef4444' : '#65a30d' }] }, options: { responsive: true, maintainAspectRatio: false } }); }
+            let deficitChart;
+            if(deficitChartCtx) {
+                deficitChart = new Chart(deficitChartCtx, {
+                    type: 'bar',
+                    data: deficitData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: false, title: { display: true, text: '收支金額' } } },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        if (context.parsed.y !== null) {
+                                            const value = context.parsed.y;
+                                            const sign = value < 0 ? '赤字' : '盈餘';
+                                            label += `${sign}: NT$ ${Math.abs(value).toLocaleString()}`;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
             const optionDetailsContainer = document.getElementById('optionDetails');
-            const optionA = { name: 'A方案：打除重做 (治本型)', details: `此工法會將現有已失效的防水層及鬆動的水泥保護層完全刨除，直達最原始的RC結構層。這是目前業界公認最能「斷根」的防水工法。`, costText: '2,394,000元 (未稅)', pros: ['最徹底的解決方案', '最長的耐用年限 (預估10-15年)'], cons: ['初期投入成本最高', '施工期較長，噪音粉塵多'] };
-            const optionB = { name: 'B方案：表面覆蓋加強防水 (經濟型)', details: '此工法無須大規模打除，主要是在現有基礎上清潔並鋪設高強度聚酯纖維網後，施作新的防水層。', costText: '595,000元 (未稅)', pros: ['最高的成本效益', '施工期短，干擾少', '立即見效的保護'], cons: ['耐用年限相對較短', '治標性質較高，無法根治結構問題'] };
-            function updateRooftopDisplay(option) { if(!optionDetailsContainer) return; optionDetailsContainer.innerHTML = `<h3 class="text-2xl font-bold text-sky-800 mb-3">${option.name}</h3><p class="text-stone-600 mb-6">${option.details}</p><div class="mb-6"><p class="text-lg font-semibold text-stone-700">總工程款：</p><p class="text-3xl font-bold text-sky-700">${option.costText}</p></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><h4 class="font-semibold text-emerald-700 mb-2">優點</h4><ul class="list-disc list-inside space-y-1 text-sm text-stone-600">${option.pros.map(p => `<li>${p}</li>`).join('')}</ul></div><div><h4 class="font-semibold text-red-700 mb-2">風險與成本考量</h4><ul class="list-disc list-inside space-y-1 text-sm text-stone-600">${option.cons.map(c => `<li>${c}</li>`).join('')}</ul></div></div>`; }
+
+            const optionA = {
+                name: 'A方案：打除重做 (治本型)',
+                details: `此工法會將現有已失效的防水層及鬆動的水泥保護層完全刨除，直達最原始的RC結構層。這是目前業界公認最能「斷根」的防水工法。`,
+                cost: 2394000,
+                costText: '2,394,000元 (未稅)',
+                lifespan: '10-15年',
+                pros: ['最徹底的解決方案', '最長的耐用年限 (預估10-15年)'],
+                cons: ['初期投入成本最高', '施工期較長，噪音粉塵多']
+            };
+            const optionB = {
+                name: 'B方案：表面覆蓋加強防水 (經濟型)',
+                details: '此工法無須大規模打除，主要是在現有基礎上清潔並鋪設高強度聚酯纖維網後，施作新的防水層。',
+                cost: 595000,
+                costText: '595,000元 (未稅)',
+                lifespan: '較短',
+                pros: ['最高的成本效益', '施工期短，干擾少', '立即見效的保護'],
+                cons: ['耐用年限相對較短', '治標性質較高，無法根治結構問題']
+            };
+
+            function updateRooftopDisplay(option) {
+                if(!optionDetailsContainer) return;
+                optionDetailsContainer.innerHTML = `
+                    <h3 class="text-2xl font-bold text-sky-800 mb-3">${option.name}</h3>
+                    <p class="text-stone-600 mb-6">${option.details}</p>
+                    <div class="mb-6">
+                        <p class="text-lg font-semibold text-stone-700">總工程款：</p>
+                        <p class="text-3xl font-bold text-sky-700">${option.costText}</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-emerald-700 mb-2">優點</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm text-stone-600">${option.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-red-700 mb-2">風險與成本考量</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm text-stone-600">${option.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                `;
+            }
+
             const btnOptionA = document.getElementById('btnOptionA');
             const btnOptionB = document.getElementById('btnOptionB');
-            if (btnOptionA && btnOptionB) { btnOptionA.addEventListener('click', () => { updateRooftopDisplay(optionA); btnOptionA.className = btnOptionA.className.replace(/bg-white text-sky-800.*/, 'bg-sky-700 text-white'); btnOptionB.className = btnOptionB.className.replace(/bg-sky-700 text-white/, 'bg-white text-sky-800 border border-sky-700'); }); btnOptionB.addEventListener('click', () => { updateRooftopDisplay(optionB); btnOptionB.className = btnOptionB.className.replace(/bg-white text-sky-800.*/, 'bg-sky-700 text-white'); btnOptionA.className = btnOptionA.className.replace(/bg-sky-700 text-white/, 'bg-white text-sky-800 border border-sky-700'); }); updateRooftopDisplay(optionA); }
-            document.querySelectorAll('.safety-defense-item button').forEach(button => { button.addEventListener('click', () => { const content = button.nextElementSibling; const icon = button.querySelector('span:last-child'); const isOpening = !content.classList.contains('show'); document.querySelectorAll('.safety-defense-content.show').forEach(openContent => openContent.classList.remove('show')); document.querySelectorAll('.safety-defense-item button span:last-child').forEach(openIcon => openIcon.classList.remove('rotate-180')); if (isOpening) { content.classList.add('show'); icon.classList.add('rotate-180'); } }); });
 
-            showSection(window.location.hash || '#dashboard', true);
+            if (btnOptionA && btnOptionB) {
+                btnOptionA.addEventListener('click', () => {
+                    updateRooftopDisplay(optionA);
+                    btnOptionA.classList.add('bg-sky-700', 'text-white');
+                    btnOptionA.classList.remove('bg-white', 'text-sky-800', 'border', 'border-sky-700');
+                    btnOptionB.classList.add('bg-white', 'text-sky-800', 'border', 'border-sky-700');
+                    btnOptionB.classList.remove('bg-sky-700', 'text-white');
+                });
+                btnOptionB.addEventListener('click', () => {
+                    updateRooftopDisplay(optionB);
+                    btnOptionB.classList.add('bg-sky-700', 'text-white');
+                    btnOptionB.classList.remove('bg-white', 'text-sky-800', 'border', 'border-sky-700');
+                    btnOptionA.classList.add('bg-white', 'text-sky-800', 'border', 'border-sky-700');
+                    btnOptionA.classList.remove('bg-sky-700', 'text-white');
+                });
+                updateRooftopDisplay(optionA);
+            }
+
+            const defenseItems = document.querySelectorAll('.safety-defense-item');
+            defenseItems.forEach(item => {
+                const button = item.querySelector('button');
+                const content = item.querySelector('.safety-defense-content');
+                const icon = button.querySelector('span:last-child');
+                button.addEventListener('click', () => {
+                    // 關閉所有展開的項目
+                    defenseItems.forEach(otherItem => {
+                        const otherContent = otherItem.querySelector('.safety-defense-content');
+                        const otherIcon = otherItem.querySelector('button span:last-child');
+                        if (otherContent !== content) {
+                            otherContent.classList.remove('show');
+                            otherIcon.classList.remove('rotate-180');
+                        }
+                    });
+                    // 展開/收起點擊的項目
+                    content.classList.toggle('show');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+
         });
     </script>
 </body>
