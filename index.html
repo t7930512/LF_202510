@@ -647,6 +647,8 @@
                     sidebar.classList.add('-translate-x-full');
                     overlay.classList.add('hidden');
                 }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
             navLinks.forEach(link => {
